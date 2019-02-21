@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="index.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <title>Antler</title>
+</head>
+
+
+
+<header>
+    <img id="header-logo" src="./assets/images/Logo.png" alt="logo">
+    <span id="header-title">Antler</span>
+    <button class ="button" id="btnRefresh" onclick="refresh()"> Refresh </button>
+</header>
+
+
+<body>
+
+    <div id="split">
+        <div class="columns" id="display">
+            <h2 class="colTitle"> Displays </h2>
+
+            <div class="list" id="Displaylist">
+                
+            </div>
+
+        </div>
+
+
+        <div id="seperator"></div>
+
+
+        <div class="columns" id="Ads">
+            <h2 class="colTitle">Ads</h2>
+
+            <div class="list" id="Adlist">  
+
+            </div>
+                
+
+        </div>
+
+    </div>
+
+
+
+    <footer>
+        <div id="splitCol">
+            <div class="btnCol">
+                <div></div>
+            </div>
+    
+            <div class="btnCol">
+                <form method="post" enctype="multipart/form-data" id="myform">
+                    <input class="button" type="submit" value="Submit" name="submit">
+                    
+                    <label class="button">
+                        <input type="file" name="filetoupload" id="fileToUpload" accept="image/png, image/jpeg" multiple>
+                        <!--   -->
+                        Choose Image(s) to Upload
+                    </label> 
+                </form>
+            </div>
+    
+        <button class ="button" id="btnDeploy" onclick="deploy()"> Deploy </button>
+    </footer>
+
+
+
+</body>
+
+
+
+
+</html>
