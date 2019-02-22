@@ -73,7 +73,7 @@ app.post("/:api/:table", function(req , res){
         });
     }else{
         console.log(req.body.parameters);
-        query = adminServices.insert(req.params.table,JSON.parse(req.body.parameters));                         //100% done
+        query = adminServices.insert(req.params.table,req.body.parameters);                         //100% done
         executeQuery (res, query);
     }
 });
