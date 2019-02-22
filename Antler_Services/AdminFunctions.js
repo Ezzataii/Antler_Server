@@ -3,6 +3,9 @@ const parser = require('./parse');
 
 function get(table,cond){
     var where = parser.parseWhere(cond);
+    if (where != ""){
+        where = " WHERE "+where;
+    }
     var parameters = "*";
     return "SELECT " + parameters + " FROM " + table +  where;
 }

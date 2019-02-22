@@ -1,7 +1,6 @@
 function parseWhere(cond){
     var where = "";
     if (Object.keys(cond).length > 0){
-        where = " WHERE ";
         for (var key in cond){
             where += key + " = " + "'" + cond[key] + "'" + " and ";
         }
