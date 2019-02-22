@@ -4,7 +4,7 @@ const parser = require('./parse');
 function get(table,cond){
     var where = parser.parseWhere(cond);
     var parameters = "*";
-    return "SELECT " + parameters + " FROM " + table + " WHERE " + where;
+    return "SELECT " + parameters + " FROM " + table +  where;
 }
 
 function remove(table,id){
