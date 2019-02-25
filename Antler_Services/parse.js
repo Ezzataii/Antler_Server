@@ -2,7 +2,9 @@ function parseWhere(cond){
     var where = "";
     if (Object.keys(cond).length > 0){
         for (var key in cond){
-            where += key + " = " + "'" + cond[key] + "'" + " and ";
+            if (key != "token"){
+                where += key + " = " + "'" + cond[key] + "'" + " and ";
+            }
         }
         where = where.slice(0,where.length-4);
     }
