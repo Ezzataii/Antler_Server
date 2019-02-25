@@ -71,7 +71,7 @@ app.post("/:api/:table", function(req , res){
                 executeQuery (res, query);
             });
         });
-    }else{
+    }else if (req.params.api == "api"){
         console.log(req.body.parameters);
         query = adminServices.insert(req.params.table,req.body.parameters);                         //100% done
         executeQuery (res, query);
@@ -89,3 +89,5 @@ app.post("/:api/:table", function(req , res){
     var query =adminServices.remove(req.params.table,req.params.id);                                            //Untouched
     executeQuery (res, query);
 });
+
+

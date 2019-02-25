@@ -39,6 +39,7 @@ function insert(table,pars){
     return query + cols + " VALUES " + vals;
 }
 
+console.log(get("Alildeek",{'id':1,'name':'jad'}));
 
 module.exports.get = get;
 module.exports.remove = remove;
