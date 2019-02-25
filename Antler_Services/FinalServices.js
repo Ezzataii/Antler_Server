@@ -33,8 +33,8 @@ app.use(function (req, res, next) {
 //Initiallising connection string
 var DBconf = {
     host: "localhost",
-    user: "root",
-    password: "",
+    user: "commandeers",
+    password: "Commandeers1234",
     database: "Antler"
 };
 var con = mysql.createConnection(DBconf);
