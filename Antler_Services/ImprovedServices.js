@@ -8,7 +8,6 @@ var dir = "./";
 var fs = require('fs');
 const parse = require("./parse");
 const adminServices = require('./AdminFunctions');
-const userServices = require('./UserFunctions');
 
 
 
@@ -31,24 +30,6 @@ app.use(function (req, res, next) {
     var port = server.address().port;
     console.log("App now running on port", port);
  });
-
-//Initiallising connection string
-var DBconf = {
-    host: "localhost",
-    user: "commandeers",
-    password: "Commandeers1234",
-    database: "Antler"
-};
-var con = mysql.createConnection(DBconf);
-//Function to connect to database and execute query
-    function executeQuery(res, query){
-    con.query(query, function(err, rows, result) {
-        console.log(query);
-        if (err) throw err;
-        res.end(JSON.stringify(rows));
-        res.end();
-    });
-}
 
 //GET API
 app.get("/api/:table", function(req , res){

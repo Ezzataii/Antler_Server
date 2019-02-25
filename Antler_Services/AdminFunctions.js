@@ -1,4 +1,9 @@
 const parser = require('./parse');
+const formidable = require("formidable");
+const fs = require("fs");
+const executeQuery = require("./DBCon").executeQuery;
+const dir = "./images/";
+const request = require("request");
 
 
 function get(table,cond){
@@ -38,11 +43,39 @@ function insert(table,pars){
     cols = cols.slice(0,cols.length - 2) +")";
     return query + cols + " VALUES " + vals;
 }
+function handleForm(req,res){
+    var form = new formidable.IncomingForm();
+            form.parse(req, function(err, fields, files) {
+                var oldpath = files.filetoupload.path;              //uploading file to server
+                var newpath = dir + files.filetoupload.name;
+                var query = insert("ADS",{'name':files.filetoupload.name,'user':req.query.user})         //Needs Dynamic User
+                console.log(query);
+                fs.rename(oldpath, newpath, (err)=>{
+                    if (err) throw err;
+                    console.log('File uploaded and moved!');
+                    executeQuery (res, query);
+                });
+            });
+}
 
-console.log(get("Alildeek",{'id':1,'name':'jad'}));
+
+function displayImage(req,ip,dir,name){
+    var path = dir + name;
+    var r = request.post(ip,(err,res,body)=>{
+        if(err) throw err;
+        console.log("URL: "+body);
+    });
+    var form = r.form();
+    form.append('file',fs.createReadStream(path),{name: 'filetoupload', contentType: 'multipart/form-data'});
+}
+
+
+
+
 
 module.exports.get = get;
 module.exports.remove = remove;
 module.exports.update = update;
 module.exports.insert = insert;
-
+module.exports.handleForm = handleForm;
+module.exports.displayImage = displayImage;
