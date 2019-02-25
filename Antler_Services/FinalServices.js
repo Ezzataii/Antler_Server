@@ -53,7 +53,7 @@ app.get("/api/list/:table",(req,res)=>{
     if (req.query.token != "UserToken1234"){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
-        var query = "SELECT * FROM "+req.params.table;
+        var query = adminServices.get(req.params.table,req.query);
         executeQuery(res, query);
     }
 });
