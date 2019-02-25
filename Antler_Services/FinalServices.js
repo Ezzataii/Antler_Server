@@ -57,3 +57,21 @@ app.get("/api/list/:table",(req,res)=>{
         executeQuery(res, query);
     }
 });
+
+app.post("api/upload/ad",(req,res)=>{
+    if (req.query.token != "UserUploadImage"){
+        res.end("Unauthorized Access. Try again with a different token.");
+        return;
+    }
+    var form = new formidable.IncomingForm();
+        form.parse(req, function(err, fields, files) {
+            var oldpath = files.filetoupload.path;              //uploading file to server
+            var newpath = dir + files.filetoupload.name;
+            query = adminServices.insert("ADS",{'name':files.filetoupload.name,'user':req.query.user})         //Needs Dynamic User
+            fs.rename(oldpath, newpath, (err)=>{
+                if (err) throw err;
+                console.log('File uploaded and moved!');
+                executeQuery (res, query);
+            });
+        });
+});
