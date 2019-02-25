@@ -67,7 +67,8 @@ app.post("api/upload/ad",(req,res)=>{
         form.parse(req, function(err, fields, files) {
             var oldpath = files.filetoupload.path;              //uploading file to server
             var newpath = dir + files.filetoupload.name;
-            query = adminServices.insert("ADS",{'name':files.filetoupload.name,'user':req.query.user})         //Needs Dynamic User
+            var query = adminServices.insert("ADS",{'name':files.filetoupload.name,'user':req.query.user})         //Needs Dynamic User
+            console.log(query);
             fs.rename(oldpath, newpath, (err)=>{
                 if (err) throw err;
                 console.log('File uploaded and moved!');
