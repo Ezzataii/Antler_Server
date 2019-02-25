@@ -11,6 +11,10 @@ const adminServices = require('./AdminFunctions');
 const userServices = require('./UserFunctions');
 
 
+const API_ADMIN_TOKEN = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIE;JcabTQTY6Y718265361T2GEKJlkqhao8ds76R61825387980180203-9180927645678039-80-9==";
+const API_USER_TOKEN = "HDGSHabsdjHGASLDJABGSDKGHGBlsdghqywtegytqKJSDBBDVQGFWEGUQJLWEVQTWIT47812316T23Y8OYti&*o&6r&i^t&uyhNmnGHHFAYGSHD";
+
+
 
 // Body Parser Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -50,7 +54,7 @@ var con = mysql.createConnection(DBconf);
 
 
 app.get("/api/list/:table",(req,res)=>{
-    if (req.query.token != "UserToken1234"){
+    if (req.query.token != API_ADMIN_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
         var query = adminServices.get(req.params.table,req.query);
@@ -58,21 +62,32 @@ app.get("/api/list/:table",(req,res)=>{
     }
 });
 
-app.post("api/upload/ad",(req,res)=>{
-    if (req.query.token != "UserUploadImage"){
+
+app.put("/api/update/:id",(req,res)=>{
+    if (req.query.token != API_USER_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
-        return;
+    }else{
+        var query = adminServices.update("DEVICE",req.body.parameters,{"id":req.params.id});
+        executeQuery(res, query);
     }
-    var form = new formidable.IncomingForm();
-        form.parse(req, function(err, fields, files) {
-            var oldpath = files.filetoupload.path;              //uploading file to server
-            var newpath = dir + files.filetoupload.name;
-            var query = adminServices.insert("ADS",{'name':files.filetoupload.name,'user':req.query.user})         //Needs Dynamic User
-            console.log(query);
-            fs.rename(oldpath, newpath, (err)=>{
-                if (err) throw err;
-                console.log('File uploaded and moved!');
-                executeQuery (res, query);
+});
+
+
+app.post("api/upload/ad",(req,res)=>{
+    if (req.query.token != API_USER_TOKEN){
+        res.end("Unauthorized Access. Try again with a different token.");
+    }else{
+        var form = new formidable.IncomingForm();
+            form.parse(req, function(err, fields, files) {
+                var oldpath = files.filetoupload.path;              //uploading file to server
+                var newpath = dir + files.filetoupload.name;
+                var query = adminServices.insert("ADS",{'name':files.filetoupload.name,'user':req.query.user})         //Needs Dynamic User
+                console.log(query);
+                fs.rename(oldpath, newpath, (err)=>{
+                    if (err) throw err;
+                    console.log('File uploaded and moved!');
+                    executeQuery (res, query);
+                });
             });
-        });
+    }
 });
