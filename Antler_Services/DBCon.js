@@ -8,6 +8,8 @@ var DBconf = {
 };
 
 var con = mysql.createConnection(DBconf);
+
+
 //Function to connect to database and execute query
     function executeQuery(res, query){
     con.query(query, function(err, rows, result) {
