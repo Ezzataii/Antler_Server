@@ -70,6 +70,16 @@ function displayImage(req,ip,dir,name){
 }
 
 
+function displayAll(req,devices,images){
+    var query = "";
+    for (var i = 0 ; i < devices.length ; i++){
+        for (var k = 0 ; k < images.length ; k++){
+            query += `INSERT INTO SHOWING(displayId,adId) VALUES (${devices[i].id},${images[k].id});\n`;
+            displayImage(req,devices[i].ip,images[k].dir,images[k].name);
+        }
+    }
+    return query;
+}
 
 
 
@@ -78,4 +88,4 @@ module.exports.remove = remove;
 module.exports.update = update;
 module.exports.insert = insert;
 module.exports.handleForm = handleForm;
-module.exports.displayImage = displayImage;
+module.exports.displayAll = displayAll;
