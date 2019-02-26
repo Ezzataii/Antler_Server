@@ -41,7 +41,7 @@ app.get("/api/list/:table",(req,res)=>{
 });
 
 
-app.get("/device/authenticate/:id",(req,res)=>{
+app.get("/api/device/authenticate/:id",(req,res)=>{
     if (req.query.token != API_DEVICE_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
