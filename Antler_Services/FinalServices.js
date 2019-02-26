@@ -88,7 +88,7 @@ app.get("/api/insert/device/:id",(req,res)=>{
 
 
 app.put("/api/update/:id",(req,res)=>{
-    if (req.query.token != API_USER_TOKEN){
+    if (req.query.token != API_DEVICE_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
         var query = adminServices.update("DEVICE",req.body.parameters,{"id":req.params.id});
