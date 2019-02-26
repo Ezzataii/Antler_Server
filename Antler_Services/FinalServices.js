@@ -46,6 +46,7 @@ app.get("/api/device/authenticate/:id",(req,res)=>{
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
         var query = "SELECT * FROM DEVICE WHERE id = "+req.params.id;
+        console.log(query);
         executeQuery(query);
     }
 });
