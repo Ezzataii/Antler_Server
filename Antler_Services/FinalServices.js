@@ -7,9 +7,9 @@ const path = require('path');
 // const fs = require('fs');
 
 
-const API_ADMIN_TOKEN = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
-const API_USER_TOKEN  = "HDGSHabsdjHGASLDJABGSDKGHGBlsdghqywtegytqKJSDBBDVQGFWEGUQJLWEVQTWIT47812316T23Y8OYtio6rituyhNmnGHHFAYGSHD545==";
-
+const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
+const API_USER_TOKEN   = "HDGSHabsdjHGASLDJABGSDKGHGBlsdghqywtegytqKJSDBBDVQGFWEGUQJLWEVQTWIT47812316T23Y8OYtio6rituyhNmnGHHFAYGSHD545==";
+const API_DEVICE_TOKEN = "JhkFTHJGFvtrT6tR^5uy6tFjTYR^YtgvjtYRgIJHf7i6iuYGvHCRUTIRIGHvc5F7i^utGBFdtrSRYETtfgilUOI&trtdRFCkytY6YGFVnbv==";
 
 var app = express();
 
@@ -39,6 +39,18 @@ app.get("/api/list/:table",(req,res)=>{
         executeQuery(res, query);
     }
 });
+
+
+app.get("/device/authenticate/:id",(req,res)=>{
+    if (req.query.token != API_DEVICE_TOKEN){
+        res.end("Unauthorized Access. Try again with a different token.");
+    }else{
+        var query = "SELECT * FROM DEVICE WHERE id = "+req.params.id;
+        executeQuery(query);
+    }
+});
+
+
 
 app.get("/",(req,res)=>{
     var filename = __dirname+"/../Antler_WebApp/index.html";
