@@ -15,6 +15,11 @@ npm run serve
 npm run build
 ```
 
+### To serve:
+```
+serve dist -s -l [port]
+```
+
 ### Run your tests
 ```
 npm run test
