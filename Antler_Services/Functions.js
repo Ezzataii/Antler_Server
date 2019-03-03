@@ -1,7 +1,7 @@
 const parser = require('./parse');
 const formidable = require("formidable");
 const fs = require("fs");
-const executeQuery = require("./DBCon").executeQuery;
+const executeQuery = require("./DBcnfg").executeQuery;
 const dir = "./images/";
 const request = require("request");
 
@@ -43,12 +43,13 @@ function insert(table,pars){
     cols = cols.slice(0,cols.length - 2) +")";
     return query + cols + " VALUES " + vals;
 }
+
 function handleForm(req,res){
     var form = new formidable.IncomingForm();
             form.parse(req, function(err, fields, files) {
                 var oldpath = files.filetoupload.path;              //uploading file to server
-                var newpath = dir + files.filetoupload.name;
-                var query = insert("ADS",{'name':files.filetoupload.name,'user':req.query.user})         //Needs Dynamic User
+                var newpath = __dirname+"/images/" + files.filetoupload.name;
+                var query = insert("ADS",{'name':files.filetoupload.name,'user':req.query.user,'dir':dir})         //Needs Dynamic User
                 console.log(query);
                 fs.rename(oldpath, newpath, (err)=>{
                     if (err) throw err;
@@ -68,7 +69,6 @@ function displayImage(req,ip,dir,name){
     var form = r.form();
     form.append('file',fs.createReadStream(path),{name: 'filetoupload', contentType: 'multipart/form-data'});
 }
-
 
 function displayAll(req,devices,images){
     var query = "";

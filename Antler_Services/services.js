@@ -1,17 +1,17 @@
 //Initiallising node modules
 var express = require("express");
 var bodyParser = require("body-parser");
-const adminServices = require('./AdminFunctions');
-const executeQuery = require("./DBCon").executeQuery;
+const adminServices = require('./Functions');
+const executeQuery = require("./DBcnfg").executeQuery;
 const path = require('path');
-// const fs = require('fs');
 
 
 const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
-const API_USER_TOKEN   = "HDGSHabsdjHGASLDJABGSDKGHGBlsdghqywtegytqKJSDBBDVQGFWEGUQJLWEVQTWIT47812316T23Y8OYtio6rituyhNmnGHHFAYGSHD545==";
-// const API_DEVICE_TOKEN = "JhkFTHJGFvtrT6tR^5uy6tFjTYR^YtgvjtYRgIJHf7i6iuYGvHCRUTIRIGHvc5F7i^utGBFdtrSRYETtfgilUOI&trtdRFCkytY6YGFVnbv==";
+const API_USER_TOKEN = "abc";
+//const API_USER_TOKEN   = "HDGSHabsdjHGASLDJABGSDKGHGBlsdghqywtegytqKJSDBBDVQGFWEGUQJLWEVQTWIT47812316T23Y8OYtio6rituyhNmnGHHFAYGSHD545==";
+//const API_DEVICE_TOKEN = "JhkFTHJGFvtrT6tR^5uy6tFjTYR^YtgvjtYRgIJHf7i6iuYGvHCRUTIRIGHvc5F7i^utGBFdtrSRYETtfgilUOI&trtdRFCkytY6YGFVnbv==";
 const API_DEVICE_TOKEN = "abc";
-
+//const API_DEVICE_TOKEN = "FGfgvkHHGHh6756^78OT6fGRF67R5TghfvTYr4ghCVty54AIYvdr%^rfvbd56tGJH,GVt67oUjhvbTUK%ugVBR5iGvby5gyo57O*ughbtuR=="
 var app = express();
 
 // Body Parser Middleware
@@ -41,7 +41,6 @@ app.get("/api/list/:table",(req,res)=>{
     }
 });
 
-
 app.get("/api/device/authenticate/:id",(req,res)=>{
     if (req.query.token != API_DEVICE_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
@@ -50,31 +49,6 @@ app.get("/api/device/authenticate/:id",(req,res)=>{
         // console.log(query);
         executeQuery(res,query);
     }
-});
-
-
-
-app.get("/",(req,res)=>{
-    var filename = __dirname+"/../Antler_WebApp/index.html";
-    res.sendFile(path.join(filename));
-});
-
-app.get("/:file",(req,res)=>{
-    var filename = __dirname+"/../Antler_WebApp/" + req.params.file;
-    if (req.params.file == "favicon.ico"){
-        filename = __dirname+"/../Antler_WebApp/assets/images/Logo.png";
-    }
-    res.sendFile(path.join(filename));
-});
-
-app.get("/assets/logo",(req,res)=>{
-    var filename = __dirname+"/../Antler_WebApp/assets/images/Logo.png";
-    res.sendFile(path.join(filename));
-});
-
-app.get("/assets/fonts/:font",(req,res)=>{
-    var filename = __dirname+"/../Antler_WebApp/assets/fonts/" + req.params.font;
-    res.sendFile(path.join(filename));
 });
 
 app.get("/api/insert/device/:id",(req,res)=>{
@@ -96,7 +70,6 @@ app.put("/api/update/:id",(req,res)=>{
     }
 });
 
-
 app.post("/api/upload/ad",(req,res)=>{
     console.log("Anything");
     if (req.query.token != API_USER_TOKEN){
@@ -111,9 +84,11 @@ app.post("/api/deploy",(req,res)=>{
     if (req.query.token != API_ADMIN_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
-        var devices = req.body.parameters.devices;
+        console.log(JSON.stringify(req.body.parameters));
+
+        var devices =req.body.parameters.devices;
         var images = req.body.parameters.images;
         var query = adminServices.displayAll(req,devices,images);
-        executeQuery(res,query);
+//        executeQuery(res,query);
     }
 })
