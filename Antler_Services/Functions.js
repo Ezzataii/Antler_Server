@@ -81,7 +81,14 @@ function displayAll(req,devices,images){
     return query;
 }
 
+function deleteAd (id, name, path){
+    remove(ADS, id);
+    fs.unlink(path, function(err){
+        if (err)  throw err;
+        console.log("Successful deleted ad file");
+    }); 
 
+}
 
 module.exports.get = get;
 module.exports.remove = remove;
@@ -89,3 +96,4 @@ module.exports.update = update;
 module.exports.insert = insert;
 module.exports.handleForm = handleForm;
 module.exports.displayAll = displayAll;
+module.exports.deleteAd = deleteAd;

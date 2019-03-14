@@ -92,4 +92,14 @@ app.post("/api/deploy",(req,res)=>{
         var query = adminServices.displayAll(req,devices,images);
 //        executeQuery(res,query);
     }
-})
+});
+
+app.post("/api/delete/ad",(req,res)=>{
+    var ads = req.body.parameters.Ads;  //Ads is the array of ads to be deleted in JSON format 
+    var i,
+    for (i = 0 ; i < ads.length ; i++){
+        adminServices.deleteAd(ads[i]);
+    }
+
+
+});
