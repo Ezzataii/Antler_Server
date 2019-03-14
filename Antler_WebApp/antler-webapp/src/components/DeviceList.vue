@@ -123,9 +123,7 @@ export default {
         this.errors.push(e);
       }
     }
-  },
-
-
+  }, 
   async created() {
     this.loadItems();
   }
