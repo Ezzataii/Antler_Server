@@ -45,17 +45,18 @@ app.get("/api/device/authenticate/:id",(req,res)=>{
     if (req.query.token != API_DEVICE_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
-        var query = "SELECT * FROM DEVICE WHERE id = "+req.params.id;
+        var id = parseInt(req.params.id.toLowerCase(),36)/1423;
+        var query = "SELECT * FROM DEVICE WHERE id = "+id;
         // console.log(query);
         executeQuery(res,query);
     }
 });
 
-app.get("/api/insert/device/:id",(req,res)=>{
+app.post("/api/insert/device",(req,res)=>{
     if (req.query.token != API_ADMIN_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
-        var query = `INSERT INTO DEVICE(id,auth) VALUES (${req.params.id},0)`;
+        var query = `INSERT INTO DEVICE(auth) VALUES (0)`;
         executeQuery(res,query);
     }
 });
@@ -65,6 +66,7 @@ app.put("/api/update/:id",(req,res)=>{
     if (req.query.token != API_DEVICE_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
+        var id = parseInt(req.params.id.toLowerCase(),36)/1423;
         var query = adminServices.update("DEVICE",req.body.parameters,{"id":req.params.id});
         executeQuery(res, query);
     }
@@ -85,10 +87,30 @@ app.post("/api/deploy",(req,res)=>{
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
         console.log(JSON.stringify(req.body.parameters));
-
+        //if (req.body.authentication == the correct one)
         var devices =req.body.parameters.devices;
         var images = req.body.parameters.images;
         var query = adminServices.displayAll(req,devices,images);
 //        executeQuery(res,query);
     }
 })
+app.get("/api/delete/device/:id",(req,res)=>{
+    var query = adminServices.remove("DEVICE",parseInt(req.params.id.toLowerCase(),36)/1423);
+    executeQuery(res,query);
+})
+
+app.get("/api/delete/ad/:id",(req,res)=>{
+    
+})
+
+//TODO 
+/*
+
+Post/put request needs authentication
+Listen to post requests for device timestamps && status code
+Delete api. (Also deletes image from directory)
+
+
+Login System. ( Post request => Username & password )
+Sessions.
+*/
