@@ -74,6 +74,14 @@ function handleForm(req,res){
             });
 }
 
+function decryptKey(id) {
+    return parseInt(id.toLowerCase(),36)/1423;
+}
+
+function encryptKey(id) {
+    return (id*1423).toString(36).toUpperCase();
+}
+
 
 function displayImage(req,ip,dir,name){
     var path = dir + name;
@@ -102,8 +110,16 @@ function selectAndSend(id,res) {
         res.download(__dirname+rows[0].dir+rows[0].name);
     });
 }
+function deleteAd (ad){
+    var id = decryptKey(ad.id);
+    var path = __dirname+ad.dir+ad.name;
+    remove(ADS, id);
+    fs.unlink(path, function(err){
+        if (err)  throw err;
+        console.log("Successful deleted ad file");
+    }); 
 
-
+}
 
 module.exports.get = get;
 module.exports.remove = remove;
@@ -113,3 +129,6 @@ module.exports.handleForm = handleForm;
 module.exports.displayAll = displayAll;
 module.exports.executeQuery = executeQuery;
 module.exports.selectAndSend = selectAndSend;
+module.exports.deleteAd = deleteAd;
+module.exports.decryptKey = decryptKey;
+module.exports.encryptKey = encryptKey;

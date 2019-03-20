@@ -4,6 +4,7 @@ var bodyParser = require("body-parser");
 const adminServices = require('./Functions');
 const executeQuery = require("./Functions").executeQuery;
 const path = require('path');
+//hi
 
 
 // const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
@@ -100,23 +101,14 @@ app.get("/api/delete/device/:id",(req,res)=>{
     executeQuery(res,query);
 })
 
-app.get("/api/delete/ad/:id",(req,res)=>{
-    
-});
+app.post("/api/delete/ad", (req,res) => {
+    var ads = req.body.parameters.ads;
+    for (var i = 0 ; i  < ads.length ; i++) {
+        adminServices.deleteAd(ads[i]);
+    }
+})
 
 app.get("/download/ad/:adid", (req,res)=>{
     var id = parseInt(req.params.adid.toLowerCase(),36)/1423;
     adminServices.selectAndSend(id,res);
 })
-
-//TODO 
-/*
-
-Post/put request needs authentication
-Listen to post requests for device timestamps && status code
-Delete api. (Also deletes image from directory)
-
-
-Login System. ( Post request => Username & password )
-Sessions.
-*/
