@@ -1,16 +1,19 @@
 //Initiallising node modules
 var express = require("express");
 var bodyParser = require("body-parser");
-const adminServices = require('./AdminFunctions');
-const executeQuery = require("./DBCon").executeQuery;
+const adminServices = require('./Functions');
+const executeQuery = require("./Functions").executeQuery;
 const path = require('path');
-// const fs = require('fs');
+//hi
 
 
-const API_ADMIN_TOKEN = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
-const API_USER_TOKEN  = "HDGSHabsdjHGASLDJABGSDKGHGBlsdghqywtegytqKJSDBBDVQGFWEGUQJLWEVQTWIT47812316T23Y8OYtio6rituyhNmnGHHFAYGSHD545==";
-
-
+// const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
+const API_ADMIN_TOKEN = "abc";
+const API_USER_TOKEN = "abc";
+//const API_USER_TOKEN   = "HDGSHabsdjHGASLDJABGSDKGHGBlsdghqywtegytqKJSDBBDVQGFWEGUQJLWEVQTWIT47812316T23Y8OYtio6rituyhNmnGHHFAYGSHD545==";
+//const API_DEVICE_TOKEN = "JhkFTHJGFvtrT6tR^5uy6tFjTYR^YtgvjtYRgIJHf7i6iuYGvHCRUTIRIGHvc5F7i^utGBFdtrSRYETtfgilUOI&trtdRFCkytY6YGFVnbv==";
+const API_DEVICE_TOKEN = "abc";
+//const API_DEVICE_TOKEN = "FGfgvkHHGHh6756^78OT6fGRF67R5TghfvTYr4ghCVty54AIYvdr%^rfvbd56tGJH,GVt67oUjhvbTUK%ugVBR5iGvby5gyo57O*ughbtuR=="
 var app = express();
 
 // Body Parser Middleware
@@ -40,48 +43,36 @@ app.get("/api/list/:table",(req,res)=>{
     }
 });
 
-app.get("/",(req,res)=>{
-    var filename = __dirname+"/../Antler_WebApp/index.html";
-    res.sendFile(path.join(filename));
-});
-
-app.get("/:file",(req,res)=>{
-    var filename = __dirname+"/../Antler_WebApp/" + req.params.file;
-    if (req.params.file == "favicon.ico"){
-        filename = __dirname+"/../Antler_WebApp/assets/images/Logo.png";
+app.get("/api/device/authenticate/:id",(req,res)=>{
+    if (req.query.token != API_DEVICE_TOKEN){
+        res.end("Unauthorized Access. Try again with a different token.");
+    }else{
+        var id = parseInt(req.params.id.toLowerCase(),36)/1423;
+        var query = "SELECT * FROM DEVICE WHERE id = "+id;
+        // console.log(query);
+        executeQuery(res,query);
     }
-    res.sendFile(path.join(filename));
 });
 
-app.get("/assets/logo",(req,res)=>{
-    var filename = __dirname+"/../Antler_WebApp/assets/images/Logo.png";
-    res.sendFile(path.join(filename));
-});
-
-app.get("/assets/fonts/:font",(req,res)=>{
-    var filename = __dirname+"/../Antler_WebApp/assets/fonts/" + req.params.font;
-    res.sendFile(path.join(filename));
-});
-
-app.get("/api/insert/device/:id",(req,res)=>{
+app.post("/api/insert/device",(req,res)=>{
     if (req.query.token != API_ADMIN_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
-        var query = `INSERT INTO DEVICE(id,auth) VALUES (${req.params.id},0)`;
+        var query = `INSERT INTO DEVICE(auth) VALUES (0)`;
         executeQuery(res,query);
     }
 });
 
 
 app.put("/api/update/:id",(req,res)=>{
-    if (req.query.token != API_USER_TOKEN){
+    if (req.query.token != API_DEVICE_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
+        var id = parseInt(req.params.id.toLowerCase(),36)/1423;
         var query = adminServices.update("DEVICE",req.body.parameters,{"id":req.params.id});
         executeQuery(res, query);
     }
 });
-
 
 app.post("/api/upload/ad",(req,res)=>{
     console.log("Anything");
@@ -97,9 +88,27 @@ app.post("/api/deploy",(req,res)=>{
     if (req.query.token != API_ADMIN_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
-        var devices = req.body.parameters.devices;
+        console.log(JSON.stringify(req.body.parameters));
+        //if (req.body.authentication == the correct one)
+        var devices =req.body.parameters.devices;
         var images = req.body.parameters.images;
         var query = adminServices.displayAll(req,devices,images);
-        executeQuery(res,query);
+//        executeQuery(res,query);
     }
+})
+app.get("/api/delete/device/:id",(req,res)=>{
+    var query = adminServices.remove("DEVICE",parseInt(req.params.id.toLowerCase(),36)/1423);
+    executeQuery(res,query);
+})
+
+app.post("/api/delete/ad", (req,res) => {
+    var ads = req.body.parameters.ads;
+    for (var i = 0 ; i  < ads.length ; i++) {
+        adminServices.deleteAd(ads[i]);
+    }
+})
+
+app.get("/download/ad/:adid", (req,res)=>{
+    var id = parseInt(req.params.adid.toLowerCase(),36)/1423;
+    adminServices.selectAndSend(id,res);
 })

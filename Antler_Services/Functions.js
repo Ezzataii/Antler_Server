@@ -1,9 +1,24 @@
 const parser = require('./parse');
 const formidable = require("formidable");
 const fs = require("fs");
-const executeQuery = require("./DBCon").executeQuery;
+const con = require("./DBcnfg").con;
 const dir = "./images/";
 const request = require("request");
+
+//Function to connect to database and execute query
+function executeQuery(res, query){
+    con.query(query, function(err, rows, result) {
+        console.log(query);
+        if (err) throw err;
+        for (var i = 0 ; i < rows.length ; i++){
+            if (rows[i].id != null){
+                rows[i].id = (rows[i].id*1423).toString(36).toUpperCase();
+            }
+        }
+        res.end(JSON.stringify(rows));
+        res.end();
+    });
+}
 
 
 function get(table,cond){
@@ -43,12 +58,13 @@ function insert(table,pars){
     cols = cols.slice(0,cols.length - 2) +")";
     return query + cols + " VALUES " + vals;
 }
+
 function handleForm(req,res){
     var form = new formidable.IncomingForm();
             form.parse(req, function(err, fields, files) {
                 var oldpath = files.filetoupload.path;              //uploading file to server
-                var newpath = dir + files.filetoupload.name;
-                var query = insert("ADS",{'name':files.filetoupload.name,'user':req.query.user})         //Needs Dynamic User
+                var newpath = __dirname+"/images/" + files.filetoupload.name;
+                var query = insert("ADS",{'name':files.filetoupload.name,'user':req.query.user,'dir':dir})         //Needs Dynamic User
                 console.log(query);
                 fs.rename(oldpath, newpath, (err)=>{
                     if (err) throw err;
@@ -56,6 +72,14 @@ function handleForm(req,res){
                     executeQuery (res, query);
                 });
             });
+}
+
+function decryptKey(id) {
+    return parseInt(id.toLowerCase(),36)/1423;
+}
+
+function encryptKey(id) {
+    return (id*1423).toString(36).toUpperCase();
 }
 
 
@@ -69,7 +93,6 @@ function displayImage(req,ip,dir,name){
     form.append('file',fs.createReadStream(path),{name: 'filetoupload', contentType: 'multipart/form-data'});
 }
 
-
 function displayAll(req,devices,images){
     var query = "";
     for (var i = 0 ; i < devices.length ; i++){
@@ -81,7 +104,22 @@ function displayAll(req,devices,images){
     return query;
 }
 
+function selectAndSend(id,res) {
+    var query = `SELECT dir,name FROM ADS WHERE id=${id}`;
+    con.query(query, function(err, rows, result) {
+        res.download(__dirname+rows[0].dir+rows[0].name);
+    });
+}
+function deleteAd (ad){
+    var id = decryptKey(ad.id);
+    var path = __dirname+ad.dir+ad.name;
+    remove(ADS, id);
+    fs.unlink(path, function(err){
+        if (err)  throw err;
+        console.log("Successful deleted ad file");
+    }); 
 
+}
 
 module.exports.get = get;
 module.exports.remove = remove;
@@ -89,3 +127,8 @@ module.exports.update = update;
 module.exports.insert = insert;
 module.exports.handleForm = handleForm;
 module.exports.displayAll = displayAll;
+module.exports.executeQuery = executeQuery;
+module.exports.selectAndSend = selectAndSend;
+module.exports.deleteAd = deleteAd;
+module.exports.decryptKey = decryptKey;
+module.exports.encryptKey = encryptKey;
