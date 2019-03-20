@@ -2,11 +2,12 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 const adminServices = require('./Functions');
-const executeQuery = require("./DBcnfg").executeQuery;
+const executeQuery = require("./Functions").executeQuery;
 const path = require('path');
 
 
-const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
+// const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
+const API_ADMIN_TOKEN = "abc";
 const API_USER_TOKEN = "abc";
 //const API_USER_TOKEN   = "HDGSHabsdjHGASLDJABGSDKGHGBlsdghqywtegytqKJSDBBDVQGFWEGUQJLWEVQTWIT47812316T23Y8OYtio6rituyhNmnGHHFAYGSHD545==";
 //const API_DEVICE_TOKEN = "JhkFTHJGFvtrT6tR^5uy6tFjTYR^YtgvjtYRgIJHf7i6iuYGvHCRUTIRIGHvc5F7i^utGBFdtrSRYETtfgilUOI&trtdRFCkytY6YGFVnbv==";
@@ -101,6 +102,11 @@ app.get("/api/delete/device/:id",(req,res)=>{
 
 app.get("/api/delete/ad/:id",(req,res)=>{
     
+});
+
+app.get("/download/ad/:adid", (req,res)=>{
+    var id = parseInt(req.params.adid.toLowerCase(),36)/1423;
+    adminServices.selectAndSend(id,res);
 })
 
 //TODO 

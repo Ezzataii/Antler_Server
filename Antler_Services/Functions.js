@@ -1,9 +1,24 @@
 const parser = require('./parse');
 const formidable = require("formidable");
 const fs = require("fs");
-const executeQuery = require("./DBcnfg").executeQuery;
+const con = require("./DBcnfg").con;
 const dir = "./images/";
 const request = require("request");
+
+//Function to connect to database and execute query
+function executeQuery(res, query){
+    con.query(query, function(err, rows, result) {
+        console.log(query);
+        if (err) throw err;
+        for (var i = 0 ; i < rows.length ; i++){
+            if (rows[i].id != null){
+                rows[i].id = (rows[i].id*1423).toString(36).toUpperCase();
+            }
+        }
+        res.end(JSON.stringify(rows));
+        res.end();
+    });
+}
 
 
 function get(table,cond){
@@ -81,6 +96,13 @@ function displayAll(req,devices,images){
     return query;
 }
 
+function selectAndSend(id,res) {
+    var query = `SELECT dir,name FROM ADS WHERE id=${id}`;
+    con.query(query, function(err, rows, result) {
+        res.download(__dirname+rows[0].dir+rows[0].name);
+    });
+}
+
 
 
 module.exports.get = get;
@@ -89,3 +111,5 @@ module.exports.update = update;
 module.exports.insert = insert;
 module.exports.handleForm = handleForm;
 module.exports.displayAll = displayAll;
+module.exports.executeQuery = executeQuery;
+module.exports.selectAndSend = selectAndSend;
