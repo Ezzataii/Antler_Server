@@ -110,14 +110,17 @@ function selectAndSend(id,res) {
         res.download(__dirname+rows[0].dir+rows[0].name);
     });
 }
-function deleteAd (ad){
+function deleteAd (ad,res){
     var id = decryptKey(ad.id);
-    var path = __dirname+ad.dir+ad.name;
-    remove(ADS, id);
-    fs.unlink(path, function(err){
-        if (err)  throw err;
-        console.log("Successful deleted ad file");
-    }); 
+    con.query(`Select dir,name from ADS where id = ${id}`,function(err, rows, result){
+        var path = __dirname + rows[0].dir + rows[0].name;
+        fs.unlink(path, function(err){
+            if (err)  throw err;
+            console.log("Successfully deleted ad file");
+        }); 
+    con.query(remove("ADS", id), (err,rows,result)=>{console.log("Deleted from DB")});
+
+    });
 
 }
 

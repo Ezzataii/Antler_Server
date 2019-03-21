@@ -106,6 +106,7 @@ app.post("/api/delete/ad", (req,res) => {
     for (var i = 0 ; i  < ads.length ; i++) {
         adminServices.deleteAd(ads[i]);
     }
+    res.end(`Ads Deleted: ${JSON.stringify(ads)}`);
 })
 
 app.get("/download/ad/:adid", (req,res)=>{
