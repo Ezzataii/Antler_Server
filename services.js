@@ -4,8 +4,7 @@ var bodyParser = require("body-parser");
 const adminServices = require('./Functions');
 const executeQuery = require("./Functions").executeQuery;
 const path = require('path');
-//hi
-
+var sendToIds = require('master-socket.js').sendToIds;
 
 // const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
 const API_ADMIN_TOKEN = "abc";
@@ -92,6 +91,7 @@ app.post("/api/deploy",(req,res)=>{
         console.log(JSON.stringify(req.body.parameters));
         //if (req.body.authentication == the correct one)
         var devices =req.body.parameters.devices;
+        sendToIds(devices);
         var images = req.body.parameters.images;
         var query = adminServices.displayAll(req,devices,images);
 //        executeQuery(res,query);

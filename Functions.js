@@ -85,9 +85,7 @@ function displayAll(req,devices,images,res){
     var query = "";
     // query += `INSERT INTO SHOWING(displayId,adId) VALUES (${devices[i].id},${images[k].id});\n`;
     for (var i = 0 ; i < devices.length ; i++){
-        con.query(`SELECT ip FROM DEVICE WHERE id = ${decryptKey(devices[i])}`, (err, rows, result)=>{
-            console.log(displayImage(images,[],rows[0].ip,rows[0].dir,rows[0].name));
-        });
+        
     }
     res.end("Successful");
     return query;
