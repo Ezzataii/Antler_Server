@@ -4,7 +4,7 @@ var bodyParser = require("body-parser");
 const adminServices = require('./Functions');
 const executeQuery = require("./Functions").executeQuery;
 const path = require('path');
-var sendToIds = require('master-socket.js').sendToIds;
+var sendToIds = require('./master-socket').sendToIds;
 
 // const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
 const API_ADMIN_TOKEN = "abc";
