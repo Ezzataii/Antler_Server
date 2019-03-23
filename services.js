@@ -67,8 +67,8 @@ app.put("/api/update/:id",(req,res)=>{
     if (req.query.token != API_DEVICE_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
-        var id = parseInt(req.params.id.toLowerCase(),36)/1423;
-        var query = adminServices.update("DEVICE",req.body.parameters,{"id":req.params.id});
+        var id = adminServices.decryptKey(req.params.id);
+        var query = adminServices.update("DEVICE",req.body.parameters,{"id":id}); 
         executeQuery(res, query);
     }
 });
