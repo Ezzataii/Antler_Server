@@ -2,7 +2,6 @@ const parser = require('./parse');
 const formidable = require("formidable");
 const fs = require("fs");
 const con = require("./DBcnfg").con;
-const dir = "./images/";
 const request = require("request");
 
 //Function to connect to database and execute query
@@ -64,7 +63,7 @@ function handleForm(req,res){
             form.parse(req, function(err, fields, files) {
                 var oldpath = files.filetoupload.path;              //uploading file to server
                 var newpath = __dirname+"/images/" + files.filetoupload.name;
-                var query = insert("ADS",{'name':files.filetoupload.name,'user':req.query.user,'dir':dir})         //Needs Dynamic User
+                var query = insert("ADS",{'name':files.filetoupload.name,'user':req.query.user,'dir':'/images/'})         //Needs Dynamic User
                 console.log(query);
                 fs.rename(oldpath, newpath, (err)=>{
                     if (err) throw err;
@@ -82,26 +81,36 @@ function encryptKey(id) {
     return (id*1423).toString(36).toUpperCase();
 }
 
+function displayAll(req,devices,images,res){
+    var query = "";
+    // query += `INSERT INTO SHOWING(displayId,adId) VALUES (${devices[i].id},${images[k].id});\n`;
+    for (var i = 0 ; i < devices.length ; i++){
+        con.query(`SELECT ip FROM DEVICE WHERE id = ${decryptKey(devices[i])}`, (err, rows, result)=>{
+            console.log(displayImage(images,[],rows[0].ip,rows[0].dir,rows[0].name));
+        });
+    }
+    res.end("Successful");
+    return query;
 
-function displayImage(req,ip,dir,name){
-    var path = dir + name;
-    var r = request.post(ip,(err,res,body)=>{
-        if(err) throw err;
-        console.log("URL: "+body);
-    });
-    var form = r.form();
-    form.append('file',fs.createReadStream(path),{name: 'filetoupload', contentType: 'multipart/form-data'});
 }
 
-function displayAll(req,devices,images){
-    var query = "";
-    for (var i = 0 ; i < devices.length ; i++){
-        for (var k = 0 ; k < images.length ; k++){
-            query += `INSERT INTO SHOWING(displayId,adId) VALUES (${devices[i].id},${images[k].id});\n`;
-            displayImage(req,devices[i].ip,images[k].dir,images[k].name);
+function displayImage(imgs,durs,ip,dir,name){
+
+    var jsonToSend = { "parameters":{
+        "ImageIds": imgs,  
+        "duration" : durs
         }
-    }
-    return query;
+    };
+    request.post({
+        headers: {'content-type' : 'application/json'},
+        url:     ip,
+        body:    JSON.stringify(jsonToSend)
+        }, (error, response, body) =>{
+            console.log(body);
+            console.log(error);
+            }
+    );
+    return JSON.stringify(jsonToSend);
 }
 
 function selectAndSend(id,res) {
@@ -110,18 +119,29 @@ function selectAndSend(id,res) {
         res.download(__dirname+rows[0].dir+rows[0].name);
     });
 }
-function deleteAd (ad,res){
-    var id = decryptKey(ad.id);
-    con.query(`Select dir,name from ADS where id = ${id}`,function(err, rows, result){
-        var path = __dirname + rows[0].dir + rows[0].name;
+function deleteAd (ad){
+    var id = decryptKey(ad);
+    con.query(`SELECT * FROM ADS WHERE id=${id}`,(err,rows,result)=>{
+        var path = __dirname+rows[0].dir+rows[0].name;
+        con.query(remove("ADS", id));
         fs.unlink(path, function(err){
             if (err)  throw err;
-            console.log("Successfully deleted ad file");
+            console.log("Successful deleted ad file");
         }); 
-    con.query(remove("ADS", id), (err,rows,result)=>{console.log("Deleted from DB")});
+    })
+}
 
-    });
+function deleteDevice(res,device) {
+    var id = decryptKey(device);
+    executeQuery(res, `DELETE FROM DEVICE WHERE id=${id}`);
+}
 
+
+function viewImage(res,id) {
+    con.query("SELECT dir,name FROM ADS WHERE id="+id,(err,rows,result)=>{
+        var ad = rows[0];
+        res.sendFile(__dirname+ad.dir+ad.name);
+    })
 }
 
 module.exports.get = get;
@@ -132,6 +152,9 @@ module.exports.handleForm = handleForm;
 module.exports.displayAll = displayAll;
 module.exports.executeQuery = executeQuery;
 module.exports.selectAndSend = selectAndSend;
+module.exports.viewImage = viewImage;
 module.exports.deleteAd = deleteAd;
+module.exports.deleteDevice = deleteDevice;
 module.exports.decryptKey = decryptKey;
 module.exports.encryptKey = encryptKey;
+

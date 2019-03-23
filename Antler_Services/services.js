@@ -54,7 +54,7 @@ app.get("/api/device/authenticate/:id",(req,res)=>{
     }
 });
 
-app.post("/api/insert/device",(req,res)=>{
+app.get("/api/insert/device",(req,res)=>{
     if (req.query.token != API_ADMIN_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
@@ -78,6 +78,7 @@ app.post("/api/upload/ad",(req,res)=>{
     console.log("Anything");
     if (req.query.token != API_USER_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
+        console.log("Didn't upload");
     }else{
         adminServices.handleForm(req,res);
     }
@@ -96,9 +97,11 @@ app.post("/api/deploy",(req,res)=>{
 //        executeQuery(res,query);
     }
 })
-app.get("/api/delete/device/:id",(req,res)=>{
-    var query = adminServices.remove("DEVICE",parseInt(req.params.id.toLowerCase(),36)/1423);
-    executeQuery(res,query);
+app.post("/api/delete/device", (req,res) => {
+    var devices = req.body.parameters.devices;
+    for (var i = 0 ; i  < devices.length ; i++) {
+        adminServices.deleteDevice(res,devices[i]);
+    }
 })
 
 app.post("/api/delete/ad", (req,res) => {
@@ -106,10 +109,15 @@ app.post("/api/delete/ad", (req,res) => {
     for (var i = 0 ; i  < ads.length ; i++) {
         adminServices.deleteAd(ads[i]);
     }
-    res.end(`Ads Deleted: ${JSON.stringify(ads)}`);
+    res.end("delete");
 })
 
 app.get("/download/ad/:adid", (req,res)=>{
     var id = parseInt(req.params.adid.toLowerCase(),36)/1423;
     adminServices.selectAndSend(id,res);
+})
+
+app.get("/view/ad/:adid",(req,res)=>{
+    var id = adminServices.decryptKey(req.params.adid);
+    adminServices.viewImage(res,id);
 })
