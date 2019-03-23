@@ -87,7 +87,7 @@ function displayAll(req,devices,images,res){
     for (var i = 0 ; i < devices.length ; i++){
         
     }
-    res.end("Successful");
+    // res.end("Successful");
     return query;
 
 }

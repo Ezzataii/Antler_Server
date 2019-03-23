@@ -1,7 +1,8 @@
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
-
+var adminServices = require('./Functions');
+var con = require('./DBcnfg').con;
 var socketLookup = {};
 
 app.get("/tcp/get/alive",(req,res)=>{
@@ -24,11 +25,25 @@ io.sockets.on('connection', (socket)=>{
     console.log(JSON.stringify(socketLookup));
 
     socket.on('deployToServer', (message)=>{
-        var idsToSend = message;
-        var alildeek = "alildeek";
-        idsToSend.array.forEach(element => {
-            socket.broadcast.to(socketLookup['element']).emit('deployToClient',alildeek);
-        });
+        var idsToSend = message.devices;
+        var images = [];
+        var query = `SELECT id,Duration FROM ADS WHERE id=${adminServices.decryptKey(message.images[0])}`;
+        for (var i = 1 ; i < message.images.length ; i++){
+            query += ` OR id=${adminServices.decryptKey(message.images[i])}`;
+        }
+        console.log(query);
+        con.query(query,(err,rows,res)=>{
+            console.log(rows);
+            for (var i = 0 ; i < rows.length ; i++){
+                var image = {}
+                image.id = adminServices.encryptKey(rows[i].id);
+                image.duration = rows[i].Duration;
+                images.push(image);
+            }
+            idsToSend.forEach(element => {
+                socket.to(socketLookup[element]).emit('deployToClient',images);
+            });
+        })
     })
 })
 server.listen(3000);

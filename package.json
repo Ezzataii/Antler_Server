@@ -4,7 +4,7 @@
   "description": "services",
   "main": "services.js",
   "scripts": {
-    "start": "node services.js & node socket.js"
+    "start": "node services.js"
   },
   "author": "",
   "license": "ISC",

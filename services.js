@@ -4,6 +4,8 @@ var bodyParser = require("body-parser");
 const adminServices = require('./Functions');
 const executeQuery = require("./Functions").executeQuery;
 const path = require('path');
+var con = require('./DBcnfg').con;
+var fs = require('fs');
 var sendToIds = require('./master-socket').sendToIds;
 
 // const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
@@ -62,8 +64,32 @@ app.get("/api/insert/device",(req,res)=>{
     }
 });
 
+app.put("/api/update/ads/duration", (req,res)=>{
+    var images = req.body.parameters.images;
+    var duration = req.body.parameters.duration;
+    var query = `UPDATE ADS SET Duration=${duration} WHERE id=${adminServices.decryptKey(images[0])}`; 
+    for (var i = 1 ; i < images.length ; i++ ){
+        query += ` OR id=${adminServices.decryptKey(images[i])}`; 
+    }
+    console.log(query);
+    con.query(query);
+    res.end("updated");
+ 
+})
 
-app.put("/api/update/:id",(req,res)=>{
+app.get("/api/rename/ad/:adid/:newName",(req,res)=>{
+    var id = adminServices.decryptKey(req.params.adid)
+    con.query(`SELECT dir,name FROM ADS WHERE id =${id}`,(err,rows,result)=>{
+        var name = rows[0].name;
+        fs.rename(__dirname + `/images/${name}`,__dirname + `/images/${req.params.newName}`,function (err){
+            if(err) throw err;
+        })
+        con.query(`UPDATE ADS SET name="${req.params.newName}" WHERE id=${id}`);
+        res.end("successfully renamed");  
+    })
+})
+
+app.put("/api/update/device/:id",(req,res)=>{
     if (req.query.token != API_DEVICE_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
@@ -91,9 +117,10 @@ app.post("/api/deploy",(req,res)=>{
         console.log(JSON.stringify(req.body.parameters));
         //if (req.body.authentication == the correct one)
         var devices =req.body.parameters.devices;
-        sendToIds(devices);
         var images = req.body.parameters.images;
+        sendToIds(req.body.parameters);
         var query = adminServices.displayAll(req,devices,images);
+        res.end("successful");
 //        executeQuery(res,query);
     }
 })
