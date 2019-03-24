@@ -1,22 +1,24 @@
 //Initiallising node modules
-var express = require("express");
-var bodyParser = require("body-parser");
+var express = require("express");                               //REST-API module.
+var bodyParser = require("body-parser");                        //parses the body of put/post requests, to make sure the json is properly formatted before operation begins
 const adminServices = require('./Functions');
-const executeQuery = require("./Functions").executeQuery;
-const path = require('path');
-var con = require('./DBcnfg').con;
-var fs = require('fs');
-var disk = require('diskusage');
-var sendToIds = require('./master-socket').sendToIds;
+const executeQuery = require("./Functions").executeQuery;       //function that executes a query and res.end()s the results
+var con = require('./DBcnfg').con;                              //more about this in ./DBcnfg -- mostly used here to do custom query response handling
+var fs = require('fs');                                         //file system module, for image manipulation
+var disk = require('diskusage');                                //module to keep track of the server disk (free and total capacity)
 
-// const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
+var sendToIds = require('./master-socket').sendToIds;           //more about this in ./master-socket
+
+
+/*
+    Token initialization, we need to think of better methods of storing tokens.
+*/
 const API_ADMIN_TOKEN = "abc";
 const API_USER_TOKEN = "abc";
-//const API_USER_TOKEN   = "HDGSHabsdjHGASLDJABGSDKGHGBlsdghqywtegytqKJSDBBDVQGFWEGUQJLWEVQTWIT47812316T23Y8OYtio6rituyhNmnGHHFAYGSHD545==";
-//const API_DEVICE_TOKEN = "JhkFTHJGFvtrT6tR^5uy6tFjTYR^YtgvjtYRgIJHf7i6iuYGvHCRUTIRIGHvc5F7i^utGBFdtrSRYETtfgilUOI&trtdRFCkytY6YGFVnbv==";
 const API_DEVICE_TOKEN = "abc";
-//const API_DEVICE_TOKEN = "FGfgvkHHGHh6756^78OT6fGRF67R5TghfvTYr4ghCVty54AIYvdr%^rfvbd56tGJH,GVt67oUjhvbTUK%ugVBR5iGvby5gyo57O*ughbtuR=="
-var app = express();
+
+
+var app = express();                                            //initializing the API listener and event handler object.
 
 // Body Parser Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -31,12 +33,17 @@ app.use(function (req, res, next) {
 });
 
 //Setting up server
- var server = app.listen(process.env.PORT || 8080, function () {
+ var server = app.listen(8080, function () {            //port listening on port 8080
     var port = server.address().port;
     console.log("App now running on port", port);
  });
 
-app.get("/api/list/:table",(req,res)=>{
+app.get("/api/list/:table",(req,res)=>{                 
+    /*
+        Gets list of everything in a table.
+        WHERE clause can be added in the query string parameter
+        example: /api/list/ADS?id=4
+    */
     if (req.query.token != API_ADMIN_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
@@ -45,7 +52,11 @@ app.get("/api/list/:table",(req,res)=>{
     }
 });
 
-app.get("/api/device/authenticate/:id",(req,res)=>{
+app.get("/api/device/authenticate/:id",(req,res)=>{             
+    /*
+        authenticates that a device is in our database given its id.
+        either returns an array of 1 element if found, or no elements if not.
+    */
     if (req.query.token != API_DEVICE_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
@@ -56,7 +67,10 @@ app.get("/api/device/authenticate/:id",(req,res)=>{
     }
 });
 
-app.get("/api/insert/device",(req,res)=>{
+app.get("/api/insert/device",(req,res)=>{                       
+    /*
+        adds a new unauthenticated device into the database.
+    */
     if (req.query.token != API_ADMIN_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
@@ -66,6 +80,12 @@ app.get("/api/insert/device",(req,res)=>{
 });
 
 app.put("/api/update/ads/duration", (req,res)=>{
+    /*
+        JSON follows format at the end of the page
+        given an array of ad IDs, and a duration as parameters,
+        it updates the durations of the given ads (POC ONLY)
+    */
+    //TODO change the way this works, duration is a variable for the group an ad is displayed with, not the ad itself
     var images = req.body.parameters.images;
     var duration = req.body.parameters.duration;
     var query = `UPDATE ADS SET Duration=${duration} WHERE id=${adminServices.decryptKey(images[0])}`; 
@@ -75,10 +95,14 @@ app.put("/api/update/ads/duration", (req,res)=>{
     console.log(query);
     con.query(query);
     res.end("updated");
- 
 })
 
 app.get("/api/rename/ad/:adid/:newName",(req,res)=>{
+    /*
+        Renames the ad in the database and the directory,
+        call example: /api/rename/ad/4/alildeek.jpg
+        => renames the ad who's id is 4 to 'alildeek.jpg'
+    */
     var id = adminServices.decryptKey(req.params.adid)
     con.query(`SELECT dir,name FROM ADS WHERE id =${id}`,(err,rows,result)=>{
         var name = rows[0].name;
@@ -91,6 +115,12 @@ app.get("/api/rename/ad/:adid/:newName",(req,res)=>{
 })
 
 app.put("/api/update/device/:id",(req,res)=>{
+    /*
+        JSON follows format at the end of the page
+        Updates the information of an existing device in the database,
+        given an id 'x' and a json with parameters: deviceName-hostName-site,
+        it changes the former 3 parameters of the device 'x'
+    */
     if (req.query.token != API_DEVICE_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
@@ -101,6 +131,9 @@ app.put("/api/update/device/:id",(req,res)=>{
 });
 
 app.post("/api/upload/ad",(req,res)=>{
+    /*
+        Receives ad in a multipart file upload form.
+    */
     console.log("Anything");
     if (req.query.token != API_USER_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
@@ -112,6 +145,11 @@ app.post("/api/upload/ad",(req,res)=>{
 
 
 app.post("/api/deploy",(req,res)=>{
+    /*
+        JSON follows format at the end of the page.
+        Given a list of ad ids and device ids in the json parameters,
+        it sends the given ads to the given devices through the web socket.
+    */
     if (req.query.token != API_ADMIN_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
@@ -125,13 +163,34 @@ app.post("/api/deploy",(req,res)=>{
     }
 })
 app.post("/api/delete/device", (req,res) => {
+    /*
+        JSON follows format at the end of the page
+        Given a list of devices in the json parameters,
+        it deletes them from the database.
+    */
     var devices = req.body.parameters.devices;
     for (var i = 0 ; i  < devices.length ; i++) {
         adminServices.deleteDevice(res,devices[i]);
     }
 })
 
+app.post("/api/delete/ad", (req,res) => {
+    /*
+        JSON follows format at the end of the page
+        Given a list of ads in the json parameters,
+        it deletes them from the database and their directories.
+    */
+    var ads = req.body.parameters.ads;
+    for (var i = 0 ; i  < ads.length ; i++) {
+        adminServices.deleteAd(ads[i]);
+    }
+    res.end("delete");
+})
+
 app.get("/api/get/storage", (req,res)=>{
+    /*
+        A nice feature, that returns the free space and the total capacity of the server, useful to know when to expand or delete unused images
+    */
     disk.check("/",(err,info)=>{
         var json = {};
         json['free'] = info.free * Math.pow(10,-9);
@@ -140,20 +199,32 @@ app.get("/api/get/storage", (req,res)=>{
     })
 })
 
-app.post("/api/delete/ad", (req,res) => {
-    var ads = req.body.parameters.ads;
-    for (var i = 0 ; i  < ads.length ; i++) {
-        adminServices.deleteAd(ads[i]);
-    }
-    res.end("delete");
-})
 
 app.get("/download/ad/:adid", (req,res)=>{
+    /*
+        Given an ad ID, it downloads it (if on a browser)
+    */
     var id = parseInt(req.params.adid.toLowerCase(),36)/1423;
     adminServices.selectAndSend(id,res);
 })
 
 app.get("/view/ad/:adid",(req,res)=>{
+    /*
+        Given an ad ID, it serves it, useful for showing ads on the server.
+    */
     var id = adminServices.decryptKey(req.params.adid);
     adminServices.viewImage(res,id);
 })
+
+
+/*
+
+JSON FORMAT FOR PUT AND POST REQUESTS:
+
+{
+    "parameters":(your data here)
+    "authentication": (your authentication code here)
+}
+
+
+*/
