@@ -9,20 +9,26 @@ app.get("/tcp/get/alive",(req,res)=>{
     res.end(JSON.stringify(socketLookup));
 })
 
-
-app.get("/",(req,res)=>{
-    res.sendFile(__dirname+"/index.html");
-})
-
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', (socket)=>{
     var DeviceID = socket.request._query['id'];
     var socketID = socket.id;
-    console.log("Client connected! "+socketID+" "+DeviceID);
-    socket.emit('message',"Hello world!");
+    io.emit("new-connection", DeviceID);
+    con.query(`UPDATE DEVICE SET status=1 WHERE id=${adminServices.decryptKey(DeviceID)}`);
+
     socketLookup[DeviceID] = socketID;
-    console.log(JSON.stringify(socketLookup));
+
+
+    socket.on('disconnect', ()=>{
+        delete socketLookup[DeviceID];
+        console.log("disconnected");
+        con.query(`UPDATE DEVICE SET status=0 WHERE id=${adminServices.decryptKey(DeviceID)}`);
+        io.emit("device-disconnected", DeviceID);
+    })
+
+    
+
 
     socket.on('deployToServer', (message)=>{
         var idsToSend = message.devices;
@@ -31,9 +37,7 @@ io.sockets.on('connection', (socket)=>{
         for (var i = 1 ; i < message.images.length ; i++){
             query += ` OR id=${adminServices.decryptKey(message.images[i])}`;
         }
-        console.log(query);
         con.query(query,(err,rows,res)=>{
-            console.log(rows);
             for (var i = 0 ; i < rows.length ; i++){
                 var image = {}
                 image.id = adminServices.encryptKey(rows[i].id);

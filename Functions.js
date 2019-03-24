@@ -81,51 +81,29 @@ function encryptKey(id) {
     return (id*1423).toString(36).toUpperCase();
 }
 
-function displayAll(req,devices,images,res){
-    var query = "";
-    // query += `INSERT INTO SHOWING(displayId,adId) VALUES (${devices[i].id},${images[k].id});\n`;
-    for (var i = 0 ; i < devices.length ; i++){
-        
-    }
-    // res.end("Successful");
-    return query;
-
-}
-
-function displayImage(imgs,durs,ip,dir,name){
-
-    var jsonToSend = { "parameters":{
-        "ImageIds": imgs,  
-        "duration" : durs
-        }
-    };
-    request.post({
-        headers: {'content-type' : 'application/json'},
-        url:     ip,
-        body:    JSON.stringify(jsonToSend)
-        }, (error, response, body) =>{
-            console.log(body);
-            console.log(error);
-            }
-    );
-    return JSON.stringify(jsonToSend);
-}
-
 function selectAndSend(id,res) {
     var query = `SELECT dir,name FROM ADS WHERE id=${id}`;
     con.query(query, function(err, rows, result) {
-        res.download(__dirname+rows[0].dir+rows[0].name);
+        if (rows.length>0){
+            res.download(__dirname+rows[0].dir+rows[0].name);
+        } else{
+            res.end("Woops! SelectAndSend failed!");
+        }
     });
 }
 function deleteAd (ad){
     var id = decryptKey(ad);
     con.query(`SELECT * FROM ADS WHERE id=${id}`,(err,rows,result)=>{
-        var path = __dirname+rows[0].dir+rows[0].name;
-        con.query(remove("ADS", id));
-        fs.unlink(path, function(err){
-            if (err)  throw err;
-            console.log("Successful deleted ad file");
-        }); 
+        if (rows.length>0){
+            var path = __dirname+rows[0].dir+rows[0].name;
+            con.query(remove("ADS", id));
+            fs.unlink(path, function(err){
+                if (err)  throw err;
+                console.log("Successful deleted ad file");
+            }); 
+        }else{
+            res.end("Woops! Delete ad returned no results");
+        }
     })
 }
 
@@ -137,8 +115,12 @@ function deleteDevice(res,device) {
 
 function viewImage(res,id) {
     con.query("SELECT dir,name FROM ADS WHERE id="+id,(err,rows,result)=>{
-        var ad = rows[0];
-        res.sendFile(__dirname+ad.dir+ad.name);
+        if (rows.length>0){
+            var ad = rows[0];
+            res.sendFile(__dirname+ad.dir+ad.name);
+        }else{
+            res.end("Woops! viewImage returned no results!");
+        }
     })
 }
 
@@ -147,7 +129,6 @@ module.exports.remove = remove;
 module.exports.update = update;
 module.exports.insert = insert;
 module.exports.handleForm = handleForm;
-module.exports.displayAll = displayAll;
 module.exports.executeQuery = executeQuery;
 module.exports.selectAndSend = selectAndSend;
 module.exports.viewImage = viewImage;

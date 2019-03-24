@@ -6,6 +6,7 @@ const executeQuery = require("./Functions").executeQuery;
 const path = require('path');
 var con = require('./DBcnfg').con;
 var fs = require('fs');
+var disk = require('diskusage');
 var sendToIds = require('./master-socket').sendToIds;
 
 // const API_ADMIN_TOKEN  = "JLAGSDhjhasldyqgashudjHBAGSDIUYQWIEJcabTQTY6Y718265361T2GEKJlkqhao8ds76R618253879801802039180927645678039809==";
@@ -119,7 +120,6 @@ app.post("/api/deploy",(req,res)=>{
         var devices =req.body.parameters.devices;
         var images = req.body.parameters.images;
         sendToIds(req.body.parameters);
-        var query = adminServices.displayAll(req,devices,images);
         res.end("successful");
 //        executeQuery(res,query);
     }
@@ -129,6 +129,15 @@ app.post("/api/delete/device", (req,res) => {
     for (var i = 0 ; i  < devices.length ; i++) {
         adminServices.deleteDevice(res,devices[i]);
     }
+})
+
+app.get("/api/get/storage", (req,res)=>{
+    disk.check("/",(err,info)=>{
+        var json = {};
+        json['free'] = info.free * Math.pow(10,-9);
+        json['total'] = info.total * Math.pow(10,-9);
+        res.end(JSON.stringify(json));
+    })
 })
 
 app.post("/api/delete/ad", (req,res) => {
