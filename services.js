@@ -125,7 +125,7 @@ app.put("/api/update/device/:id",(req,res)=>{
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
         var id = adminServices.decryptKey(req.params.id);
-        var query = adminServices.update("DEVICE",req.body.parameters,{"id":id}); 
+        var query = parser.update("DEVICE",req.body.parameters,{"id":id}); 
         executeQuery(res, query);
     }
 });

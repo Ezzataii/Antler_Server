@@ -1,4 +1,5 @@
 const mysql = require("mysql");
+
 //Initiallising connection string
 var DBconf = {
     host: "localhost",
@@ -7,7 +8,7 @@ var DBconf = {
     database: "Antler"
 };
 
-var con = mysql.createConnection(DBconf);
+var con = mysql.createConnection(DBconf); //Connecting to the database.
 
 
 

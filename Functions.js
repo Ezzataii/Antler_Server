@@ -6,6 +6,10 @@ const request = require("request");
 
 //Function to connect to database and execute query
 function executeQuery(res, query){
+    /*
+        Given a query string and the express response,
+        executes the SQL query and res.end()s the response.
+     */
     con.query(query, function(err, rows, result) {
         console.log(query);
         if (err) throw err;
@@ -20,50 +24,17 @@ function executeQuery(res, query){
 }
 
 
-function get(table,cond){
-    var where = parser.parseWhere(cond);
-    if (where != ""){
-        where = " WHERE "+where;
-    }
-    var parameters = "*";
-    return "SELECT " + parameters + " FROM " + table +  where;
-}
 
-function remove(table,id){
-    return "DELETE FROM "+ table + " WHERE id = '" + id + "'";
-}
-
-
-function update(table,pars,cond){
-    var query = "UPDATE " + table + " SET ";
-    var vals = parser.parseWhere(pars);
-    vals = parser.replaceAll(vals , " and " , ", ");
-    var where = parser.parseWhere(cond);
-    return query + vals + " WHERE " + where;
-}
-
-function insert(table,pars){
-    var query = "INSERT INTO " + table +" ";
-    pars = parser.parseWhere(pars);
-    var cols = "(";
-    var vals = "(";
-    pars = pars.split(" and ");
-    for (var i = 0 ; i < pars.length ; i++){
-        var temp = pars[i].split("=");
-        cols += temp[0]+", ";
-        vals += temp[1]+", ";
-    }
-    vals = vals.slice(0,vals.length - 2) +")";
-    cols = cols.slice(0,cols.length - 2) +")";
-    return query + cols + " VALUES " + vals;
-}
 
 function handleForm(req,res){
+    /*
+        I have no idea what's happening here. We should change this. Copied from stack overflow.
+    */
     var form = new formidable.IncomingForm();
             form.parse(req, function(err, fields, files) {
                 var oldpath = files.filetoupload.path;              //uploading file to server
                 var newpath = __dirname+"/images/" + files.filetoupload.name;
-                var query = insert("ADS",{'name':files.filetoupload.name,'user':req.query.user,'dir':'/images/'})         //Needs Dynamic User
+                var query = parser.insert("ADS",{'name':files.filetoupload.name,'user':req.query.user,'dir':'/images/'})         //Needs Dynamic User
                 console.log(query);
                 fs.rename(oldpath, newpath, (err)=>{
                     if (err) throw err;
@@ -74,14 +45,20 @@ function handleForm(req,res){
 }
 
 function decryptKey(id) {
+    //Given an alphnumeric key, it returns the proper integer key that works with antler's database
     return parseInt(id.toLowerCase(),36)/1423;
 }
 
 function encryptKey(id) {
+    //Given an integer key that works with antler's database, it returns the proper alphnumeric key
     return (id*1423).toString(36).toUpperCase();
 }
 
 function selectAndSend(id,res) {
+    /*
+        Given an ad ID, gets its name and directory and sets it up for download,
+        works if you enter the get request into a browser.
+    */
     var query = `SELECT dir,name FROM ADS WHERE id=${id}`;
     con.query(query, function(err, rows, result) {
         if (rows.length>0){
@@ -91,7 +68,27 @@ function selectAndSend(id,res) {
         }
     });
 }
-function deleteAd (ad){
+
+function viewImage(res,id) {
+    /*
+        Given an ad ID, get its name and directory and serves it.
+    */
+    con.query("SELECT dir,name FROM ADS WHERE id="+id,(err,rows,result)=>{
+        if (rows.length>0){
+            var ad = rows[0];
+            res.sendFile(__dirname+ad.dir+ad.name);
+        }else{
+            res.end("Woops! viewImage returned no results!");
+        }
+    })
+}
+
+
+function deleteAd (res,ad){
+    /*
+        Given an ad ID, it gets its name and directory.
+        Deletes it from both the database and the images directory.
+    */
     var id = decryptKey(ad);
     con.query(`SELECT * FROM ADS WHERE id=${id}`,(err,rows,result)=>{
         if (rows.length>0){
@@ -108,26 +105,17 @@ function deleteAd (ad){
 }
 
 function deleteDevice(res,device) {
+    /*
+        Given a Device ID, removes it from the database.
+    */
     var id = decryptKey(device);
     executeQuery(res, `DELETE FROM DEVICE WHERE id=${id}`);
 }
 
 
-function viewImage(res,id) {
-    con.query("SELECT dir,name FROM ADS WHERE id="+id,(err,rows,result)=>{
-        if (rows.length>0){
-            var ad = rows[0];
-            res.sendFile(__dirname+ad.dir+ad.name);
-        }else{
-            res.end("Woops! viewImage returned no results!");
-        }
-    })
-}
 
-module.exports.get = get;
-module.exports.remove = remove;
-module.exports.update = update;
-module.exports.insert = insert;
+
+
 module.exports.handleForm = handleForm;
 module.exports.executeQuery = executeQuery;
 module.exports.selectAndSend = selectAndSend;
