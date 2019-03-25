@@ -95,7 +95,7 @@ app.put("/api/update/ads/duration", (req,res)=>{
     console.log(query);
     con.query(query);
     res.end("updated");
-})
+});
 
 app.get("/api/rename/ad/:adid/:newName",(req,res)=>{
     /*
@@ -108,11 +108,11 @@ app.get("/api/rename/ad/:adid/:newName",(req,res)=>{
         var name = rows[0].name;
         fs.rename(__dirname + `/images/${name}`,__dirname + `/images/${req.params.newName}`,function (err){
             if(err) throw err;
-        })
+        });
         con.query(`UPDATE ADS SET name="${req.params.newName}" WHERE id=${id}`);
         res.end("successfully renamed");  
-    })
-})
+    });
+});
 
 app.put("/api/update/device/:id",(req,res)=>{
     /*
@@ -161,7 +161,8 @@ app.post("/api/deploy",(req,res)=>{
         res.end("successful");
 //        executeQuery(res,query);
     }
-})
+});
+
 app.post("/api/delete/device", (req,res) => {
     /*
         JSON follows format at the end of the page
@@ -172,7 +173,7 @@ app.post("/api/delete/device", (req,res) => {
     for (var i = 0 ; i  < devices.length ; i++) {
         adminServices.deleteDevice(res,devices[i]);
     }
-})
+});
 
 app.post("/api/delete/ad", (req,res) => {
     /*
@@ -185,7 +186,7 @@ app.post("/api/delete/ad", (req,res) => {
         adminServices.deleteAd(ads[i]);
     }
     res.end("delete");
-})
+});
 
 app.get("/api/get/storage", (req,res)=>{
     /*
@@ -196,8 +197,8 @@ app.get("/api/get/storage", (req,res)=>{
         json['free'] = info.free * Math.pow(10,-9);
         json['total'] = info.total * Math.pow(10,-9);
         res.end(JSON.stringify(json));
-    })
-})
+    });
+});
 
 
 app.get("/download/ad/:adid", (req,res)=>{
@@ -206,7 +207,7 @@ app.get("/download/ad/:adid", (req,res)=>{
     */
     var id = parseInt(req.params.adid.toLowerCase(),36)/1423;
     adminServices.selectAndSend(id,res);
-})
+});
 
 app.get("/view/ad/:adid",(req,res)=>{
     /*
@@ -214,8 +215,19 @@ app.get("/view/ad/:adid",(req,res)=>{
     */
     var id = adminServices.decryptKey(req.params.adid);
     adminServices.viewImage(res,id);
-})
+});
 
+app.get("/api/create/:group/:user",(req,res)=>{
+    executeQuery(res,`INSERT INTO GROUP(name,user) VALUES(${req.params.group},${req.params.user})`);
+});
+
+app.post("/api/add/group/:groupid",(req,res)=>{
+    var ads = req.body.parameters.ads;
+    for (var i = 0 ; i < ads.length ; i++) {
+        executeQuery(res,`INSERT INTO ADGROUPS VALUES(${req.params.groupid},${ads[i]})`);
+
+    }
+});
 
 /*
 

@@ -36,7 +36,9 @@ io.sockets.on('connection', (socket)=>{
         io.emit("device-disconnected", DeviceID);
     })
 
-    
+    socket.on("location",(message)=>{
+        console.log(message);
+    })
 
 
     socket.on('deployToServer', (message)=>{
