@@ -219,7 +219,7 @@ app.get("/view/ad/:adid",(req,res)=>{
 });
 
 app.get("/api/create/:group/:user",(req,res)=>{
-    executeQuery(res,`INSERT INTO GROUP(name,user) VALUES(${req.params.group},${req.params.user})`);
+    executeQuery(res,`INSERT INTO USERGROUP(name,user) VALUES(${req.params.group},${req.params.user})`);
 });
 
 app.post("/api/add/group/:groupid",(req,res)=>{
