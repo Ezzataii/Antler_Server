@@ -8,6 +8,7 @@ var fs = require('fs');                                         //file system mo
 var disk = require('diskusage');                                //module to keep track of the server disk (free and total capacity)
 
 var sendToIds = require('./master-socket').sendToIds;           //more about this in ./master-socket
+var parser = require('./parse');
 
 
 /*
