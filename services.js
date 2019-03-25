@@ -47,7 +47,7 @@ app.get("/api/list/:table",(req,res)=>{
     if (req.query.token != API_ADMIN_TOKEN){
         res.end("Unauthorized Access. Try again with a different token.");
     }else{
-        var query = adminServices.get(req.params.table,req.query);
+        var query = parser.get(req.params.table,req.query);
         executeQuery(res, query);
     }
 });
