@@ -219,7 +219,7 @@ app.get("/view/ad/:adid",(req,res)=>{
 });
 
 app.get("/api/create/:group/:user",(req,res)=>{
-    executeQuery(res,`INSERT INTO USERGROUP(name,UserName) VALUES('${req.params.group}',${req.params.user})`);
+    executeQuery(res,`INSERT INTO UserGroup(name,UserName) VALUES('${req.params.group}',${req.params.user})`);
 });
 
 app.post("/api/add/group/:groupid",(req,res)=>{
@@ -229,6 +229,15 @@ app.post("/api/add/group/:groupid",(req,res)=>{
 
     }
 });
+
+app.get("/api/get/ads/:groupid",(req,res)=>{
+    adminServices.executeQuery(res,`SELECT * FROM ADS a JOIN ADGROUPS g ON g.adid=a.id WHERE g.groupid=${req.params.groupid}`);
+});
+
+app.get("/api/get/groups/:userid",(req,res)=>{
+    adminServices.executeQuery(res,`SELECT groupid,name FROM USERGROUPS WHERE userid=${req.params.userid}`);
+});
+
 
 /*
 

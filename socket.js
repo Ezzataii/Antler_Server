@@ -37,7 +37,7 @@ io.sockets.on('connection', (socket)=>{
     })
 
     socket.on("location",(message)=>{
-        console.log(message);
+        con.query(`UPDATE DEVICE SET longitude=${message.longitude},latitude=${message.latitude} WHERE id=${adminServices.decryptKey(message.id)})`);
     })
 
 
