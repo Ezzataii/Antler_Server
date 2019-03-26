@@ -219,31 +219,30 @@ app.get("/view/ad/:adid",(req,res)=>{
 });
 
 app.get("/api/create/:group/:user",(req,res)=>{
-executeQuery(res,`INSERT INTO UserGroup(name,userid) VALUES('${req.params.group}',${req.params.user})`);
+    executeQuery(res,`INSERT INTO UserGroup(name,UserName) VALUES('${req.params.group}',${req.params.user})`);
 });
 
 app.post("/api/add/group/:groupid",(req,res)=>{
     var ads = req.body.parameters.ads;
     for (var i = 0 ; i < ads.length ; i++) {
-        executeQuery(res,`INSERT INTO ADGROUPS VALUES(${req.params.groupid},${adminServices.decryptKey(ads[i])}`);
+        executeQuery(res,`INSERT INTO ADGROUPS VALUES(${req.params.groupid},${ads[i]})`);
 
     }
 });
 
 app.get("/api/get/ads/:groupid",(req,res)=>{
     /*
-        get all the ads of in a group given the groupID
+        get the ad objects inside a group given the group id
     */
     adminServices.executeQuery(res,`SELECT * FROM ADS a JOIN ADGROUPS g ON g.adid=a.id WHERE g.groupid=${req.params.groupid}`);
 });
 
 app.get("/api/get/groups/:userid",(req,res)=>{
     /*
-		get all groups belonging to a user.
+        Get the groups of a user given the userid
     */
-    adminServices.executeQuery(res,`SELECT groupid,name FROM USERGROUP WHERE userid=${req.params.userid}`);   
+    adminServices.executeQuery(res,`SELECT groupid,name FROM USERGROUP WHERE userid=${req.params.userid}`);
 });
-
 
 /*
 
