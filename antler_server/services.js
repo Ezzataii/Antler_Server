@@ -219,31 +219,48 @@ app.get("/view/ad/:adid",(req,res)=>{
 });
 
 app.get("/api/create/:group/:user",(req,res)=>{
-    executeQuery(res,`INSERT INTO UserGroup(name,UserName) VALUES('${req.params.group}',${req.params.user})`);
+executeQuery(res,`INSERT INTO UserGroup(name,userid) VALUES('${req.params.group}',${req.params.user})`);
 });
 
-app.post("/api/add/group/:groupid",(req,res)=>{
+app.post("/api/add/group",(req,res)=>{
     var ads = req.body.parameters.ads;
-    for (var i = 0 ; i < ads.length ; i++) {
-        executeQuery(res,`INSERT INTO ADGROUPS VALUES(${req.params.groupid},${ads[i]})`);
-
-    }
+    con.query(`INSERT INTO USERGROUP(name,userid) VALUES('${req.body.parameters.group}',${req.query.userid})`,(err,rows,result)=>{
+        con.query(`SELECT groupid FROM USERGROUP WHERE name='${req.body.parameters.group}'`, (err,rows,result)=>{
+            console.log(rows[0]);
+            var id = rows[0].groupid;
+            for (var i = 0 ; i < ads.length ; i++) {
+                executeQuery(res,`INSERT INTO ADGROUPS VALUES(${id},${adminServices.decryptKey(ads[i])})`);
+            }
+        });
+    })
 });
 
-app.get("/api/get/ads/:groupid",(req,res)=>{
+app.get("/api/get/ads",(req,res)=>{
     /*
-        get the ad objects inside a group given the group id
+        get all the ads of in a group given the groupID
     */
-    adminServices.executeQuery(res,`SELECT * FROM ADS a JOIN ADGROUPS g ON g.adid=a.id WHERE g.groupid=${req.params.groupid}`);
+    adminServices.executeQuery(res,`SELECT * FROM ADS a JOIN ADGROUPS g ON g.adid=a.id WHERE g.groupid=${req.query.groupid}`);
 });
 
-app.get("/api/get/groups/:userid",(req,res)=>{
+app.get("/api/get/groups",(req,res)=>{
     /*
-        Get the groups of a user given the userid
+		get all groups belonging to a user.
     */
-    adminServices.executeQuery(res,`SELECT groupid,name FROM USERGROUP WHERE userid=${req.params.userid}`);
+    adminServices.executeQuery(res,`SELECT groupid,name FROM USERGROUP WHERE userid=${req.query.userid}`);   
 });
 
+
+app.post("/api/deploy/groups/:groupid",(req,res)=>{
+    var devices = req.body.parameters.devices;
+    con.query(`SELECT adid FROM ADGROUPS WHERE groupid=${req.params.groupid}`,(err,rows,result)=>{
+        var ads = [];
+        rows.forEach(ad => {
+            ads.push(ad.adid);
+        });
+        sendToIds({devices:devices,images:ads});
+        res.end("alildeek bil mexic");
+    });
+});
 /*
 
 JSON FORMAT FOR PUT AND POST REQUESTS:
