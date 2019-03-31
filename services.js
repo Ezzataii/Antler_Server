@@ -224,7 +224,6 @@ executeQuery(res,`INSERT INTO UserGroup(name,userid) VALUES('${req.params.group}
 
 app.post("/api/add/group/:groupid",(req,res)=>{
     var ads = req.body.parameters.ads;
-	executeQuery(res,`INSERT INTO UserGroup(name,userid) VALUES('${req.params.group}',${req.params.user})`);
     for (var i = 0 ; i < ads.length ; i++) {
         executeQuery(res,`INSERT INTO ADGROUPS VALUES(${req.params.groupid},${adminServices.decryptKey(ads[i])}`);
 
@@ -238,11 +237,11 @@ app.get("/api/get/ads/:groupid",(req,res)=>{
     adminServices.executeQuery(res,`SELECT * FROM ADS a JOIN ADGROUPS g ON g.adid=a.id WHERE g.groupid=${req.params.groupid}`);
 });
 
-app.get("/api/get/groups",(req,res)=>{
+app.get("/api/get/groups/:userid",(req,res)=>{
     /*
 		get all groups belonging to a user.
     */
-    adminServices.executeQuery(res,`SELECT groupid,name FROM USERGROUP WHERE userid=${req.query.userid}`);   
+    adminServices.executeQuery(res,`SELECT groupid,name FROM USERGROUP WHERE userid=${req.params.userid}`);   
 });
 
 
