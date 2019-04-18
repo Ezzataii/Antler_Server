@@ -5,7 +5,7 @@ const adminServices = require('./Functions');
 const executeQuery = require("./Functions").executeQuery;       //function that executes a query and res.end()s the results
 var con = require('./DBcnfg').con;                              //more about this in ./DBcnfg -- mostly used here to do custom query response handling
 var fs = require('fs');                                         //file system module, for image manipulation
-var disk = require('diskusage');                                //module to keep track of the server disk (free and total capacity)
+// var disk = require('diskusage');                                //module to keep track of the server disk (free and total capacity)
 
 var sendToIds = require('./master-socket').sendToIds;           //more about this in ./master-socket
 var parser = require('./parse');
@@ -244,6 +244,9 @@ app.get("/api/get/groups/:userid",(req,res)=>{
     adminServices.executeQuery(res,`SELECT groupid,name FROM USERGROUP WHERE userid=${req.params.userid}`);   
 });
 
+app.post("/api/upload/csv",(req,res)=>{
+    adminServices.handleCSVForm(req,res);
+});
 
 /*
 
