@@ -74,7 +74,7 @@ io.sockets.on('connection', (socket)=>{
     socket.on("deployGraphsToServer", (message)=>{
         var idsToSend = message.devices;
         var graphs = [];
-        var query = `SELECT id,Duration FROM GRAPHS WHERE id = ${adminServices.decryptKey(message.graph[0])}`;
+        var query = `SELECT id,Duration FROM GRAPHS WHERE id = ${adminServices.decryptKey(message.graphs[0])}`;
         for (var i = 1 ; i < message.graphs.length ; i++) {
             var graph = {};
             graph.id = adminServices.encryptKey(rows[i].id);
