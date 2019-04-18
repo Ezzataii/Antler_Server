@@ -99,7 +99,16 @@ function viewImage(res,id) {
         }
     })
 }
-
+function deleteGraph(res,graph) {
+    var id = decryptKey(graph);
+    con.query(`SELECT * FROM GRAPHS WHERE id=${id}`, (err,rows,result)=>{
+        var path = __dirname + rows[0].dir + rows[0].name;
+        con.query(remove("GRAPHS",id));
+        fs.unlink(path, (err)=>{
+            console.log("deleted graph file");
+        })
+    })
+}
 
 function deleteAd (res,ad){
     /*

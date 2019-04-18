@@ -177,6 +177,14 @@ app.post("/api/delete/device", (req,res) => {
     }
 });
 
+app.post("/api/delete/graph",(req,res)=>{
+    var graphs = req.body.parameters.graphs;
+    for (var i = 0 ; i < graphs.length ; i++) {
+        adminServices.deleteGraph(graphs[i]);
+    }
+    res.end("deleted");
+})
+
 app.post("/api/delete/ad", (req,res) => {
     /*
         JSON follows format at the end of the page
