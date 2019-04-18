@@ -179,11 +179,13 @@ app.post("/api/deploy/groups", (req,res)=>{
     var i = 0;
     var done = false;
     groups.forEach(group => {
-        con.query(`SELECT * FROM ADS a JOIN ADGROUPS g ON a.id = g.adid WHERE groupid = ${group}`, (err,rows,result)=>{
+        con.query(`SELECT * FROM ADS a JOIN ADGROUPS g ON a.id = g.adid WHERE groupid = ${adminServices.decryptKey(group)}`, (err,rows,result)=>{
             console.log(JSON.stringify(rows));
-            rows.forEach(row => {
-                ads.push(row.id);
-            });
+            if (rows.length > 0){
+                rows.forEach(row => {
+                    ads.push(row.id);
+                });
+            }
             // ads = ads.concat(rows);
             console.log(JSON.stringify(ads));
             if (i == groups.length) {
