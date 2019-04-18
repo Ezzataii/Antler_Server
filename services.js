@@ -183,7 +183,7 @@ app.post("/api/deploy/groups", (req,res)=>{
             console.log(JSON.stringify(rows));
             if (rows.length > 0){
                 rows.forEach(row => {
-                    ads.push(row.id);
+                    ads.push(adminServices.encryptKey(row.id));
                 });
             }
             // ads = ads.concat(rows);
