@@ -280,11 +280,11 @@ app.get("/api/get/ads",(req,res)=>{
     adminServices.executeQuery(res,`SELECT * FROM ADS a JOIN ADGROUPS g ON g.adid=a.id WHERE g.groupid=${req.query.groupid}`);
 });
 
-app.get("/api/get/groups/:userid",(req,res)=>{
+app.get("/api/get/groups",(req,res)=>{
     /*
 		get all groups belonging to a user.
     */
-    adminServices.executeQuery(res,`SELECT groupid,name FROM USERGROUP WHERE userid=${req.params.userid}`);   
+    adminServices.executeQuery(res,`SELECT groupid,name FROM USERGROUP WHERE userid=${req.query.userid}`);   
 });
 
 app.post("/api/upload/csv",(req,res)=>{
