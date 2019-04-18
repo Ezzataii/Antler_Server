@@ -225,12 +225,6 @@ executeQuery(res,`INSERT INTO UserGroup(name,userid) VALUES('${req.params.group}
 
 app.post("/api/add/group",(req,res)=>{
     var ads = req.body.parameters.ads;
-<<<<<<< HEAD
-    for (var i = 0 ; i < ads.length ; i++) {
-        executeQuery(res,`INSERT INTO ADGROUPS VALUES(${req.params.groupid},${adminServices.decryptKey(ads[i])}`);
-
-    }
-=======
     con.query(`INSERT INTO USERGROUP(name,userid) VALUES('${req.body.parameters.group}',${req.query.userid})`,(err,rows,result)=>{
         con.query(`SELECT groupid FROM USERGROUP WHERE name='${req.body.parameters.group}'`, (err,rows,result)=>{
             console.log(rows[0]);
@@ -240,7 +234,6 @@ app.post("/api/add/group",(req,res)=>{
             }
         });
     })
->>>>>>> 50f8e28ad52760a61babf0c13444a93fbaa0c95b
 });
 
 app.get("/api/get/ads",(req,res)=>{
