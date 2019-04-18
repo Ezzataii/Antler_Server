@@ -87,7 +87,7 @@ app.put("/api/update/:table/duration", (req,res)=>{
         it updates the durations of the given ads (POC ONLY)
     */
     //TODO change the way this works, duration is a variable for the group an ad is displayed with, not the ad itself
-    var images = req.body.parameters.images;
+    var images = req.body.parameters[req.params.table];
     var duration = req.body.parameters.duration;
     var query = `UPDATE ${req.params.table.toUpperCase()} SET Duration=${duration} WHERE id=${adminServices.decryptKey(images[0])}`; 
     for (var i = 1 ; i < images.length ; i++ ){
