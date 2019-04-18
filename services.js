@@ -7,7 +7,7 @@ var con = require('./DBcnfg').con;                              //more about thi
 var fs = require('fs');                                         //file system module, for image manipulation
 // var disk = require('diskusage');                                //module to keep track of the server disk (free and total capacity)
 
-var sendToIds = require('./master-socket').sendToIds;           //more about this in ./master-socket
+var masterSocket = require('./master-socket');           //more about this in ./master-socket
 var parser = require('./parse');
 
 
@@ -80,7 +80,7 @@ app.get("/api/insert/device",(req,res)=>{
     }
 });
 
-app.put("/api/update/ads/duration", (req,res)=>{
+app.put("/api/update/:table/duration", (req,res)=>{
     /*
         JSON follows format at the end of the page
         given an array of ad IDs, and a duration as parameters,
@@ -89,7 +89,7 @@ app.put("/api/update/ads/duration", (req,res)=>{
     //TODO change the way this works, duration is a variable for the group an ad is displayed with, not the ad itself
     var images = req.body.parameters.images;
     var duration = req.body.parameters.duration;
-    var query = `UPDATE ADS SET Duration=${duration} WHERE id=${adminServices.decryptKey(images[0])}`; 
+    var query = `UPDATE ${req.params.table} SET Duration=${duration} WHERE id=${adminServices.decryptKey(images[0])}`; 
     for (var i = 1 ; i < images.length ; i++ ){
         query += ` OR id=${adminServices.decryptKey(images[i])}`; 
     }
@@ -146,7 +146,7 @@ app.post("/api/upload/ad",(req,res)=>{
 });
 
 
-app.post("/api/deploy",(req,res)=>{
+app.post("/api/deploy/ads",(req,res)=>{
     /*
         JSON follows format at the end of the page.
         Given a list of ad ids and device ids in the json parameters,
@@ -159,10 +159,39 @@ app.post("/api/deploy",(req,res)=>{
         //if (req.body.authentication == the correct one)
         var devices =req.body.parameters.devices;
         var images = req.body.parameters.images;
-        sendToIds(req.body.parameters);
+        masterSocket.sendAdsToIds(req.body.parameters);
         res.end("successful");
 //        executeQuery(res,query);
     }
+});
+
+app.post("/api/deploy/graphs",(req,res)=>{
+    var devices = req.body.parameters.devices;
+    var images = req.body.parameters.graphs;
+    masterSocket.sendGraphsToIds(req.body.parameters);
+    res.end("Successful");
+});
+
+app.post("/api/deploy/groups", (req,res)=>{
+    var devices = req.body.parameters.devices;
+    var groups = req.body.parameters.groups;
+    ads = []
+    var i = 0;
+    var done = false;
+    groups.forEach(group => {
+        con.query(`SELECT * FROM ADS a JOIN ADGROUPS g ON a.id = g.adid WHERE groupid = ${group}`, (err,rows,result)=>{
+            console.log(JSON.stringify(rows));
+            ads = ads.concat(rows);
+            console.log(JSON.stringify(ads));
+            if (i == groups.length) {
+                done = true;
+            }
+        });
+    });
+    setTimeout(()=>{
+        masterSocket.sendAdsToIds({devices: devices, images: ads});
+        res.end("Successful");
+    }, 5000)
 });
 
 app.post("/api/delete/device", (req,res) => {
@@ -273,6 +302,8 @@ app.post("/api/deploy/groups/:groupid",(req,res)=>{
         res.end("alildeek bil mexic");
     });
 });
+
+
 /*
 
 JSON FORMAT FOR PUT AND POST REQUESTS:

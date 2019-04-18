@@ -1,8 +1,12 @@
 var socket = require('socket.io-client')("http://localhost:3000",{query: "id=MASTER"});
 var socketLookup = require('./socket').socketLookup;
 
-function sendToIds(ids) {
-    socket.emit("deployToServer", ids);
+function sendAdsToIds(ids) {
+    socket.emit("deployAdsToServer", ids);
+}
+
+function sendGraphsToIds(ids) {
+    socket.emit("deployGraphsToServer", ids);
 }
 
 
@@ -14,4 +18,5 @@ function sendToIds(ids) {
 */
 
 
-module.exports.sendToIds = sendToIds;
+module.exports.sendAdsToIds = sendAdsToIds;
+module.exports.sendGraphsToIds = sendGraphsToIds;

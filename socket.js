@@ -44,7 +44,7 @@ io.sockets.on('connection', (socket)=>{
     })
 
 
-    socket.on('deployToServer', (message)=>{
+    socket.on('deployAdsToServer', (message)=>{
         /*
             When the master client initiates a deploy activity, it means the admin is trying to deploy on the webapp
             The list of devices and images is sent here by the master client.
@@ -60,14 +60,29 @@ io.sockets.on('connection', (socket)=>{
         console.log(query);
         con.query(query,(err,rows,res)=>{
             for (var i = 0 ; i < rows.length ; i++){
-                var image = {}
+                var image = {};
                 image.id = adminServices.encryptKey(rows[i].id);
                 image.duration = rows[i].Duration;
                 images.push(image);
             }
-            idsToSend.forEach(element => {
-                io.to(socketLookup[element]).emit('deployToClient',images);
+            idsToSend.forEach(device => {
+                io.to(socketLookup[device]).emit('deployToClient',images);
             });
+        })
+    })
+
+    socket.on("deployGraphsToServer", (message)=>{
+        var idsToSend = message.devices;
+        var graphs = [];
+        var query = `SELECT id,Duration FROM GRAPHS WHERE id = ${adminServices.decryptKey(message.graph[0])}`;
+        for (var i = 1 ; i < message.graphs.length ; i++) {
+            var graph = {};
+            graph.id = adminServices.encryptKey(rows[i].id);
+            graph.duration = rows[i].Duration;
+            graphs.push(graph);
+        }
+        idsToSend.forEach(device => {
+            io.to(socketLookup[device].emit('deployToClient', graphs));
         })
     })
 })

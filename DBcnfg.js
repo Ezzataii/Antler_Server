@@ -2,7 +2,7 @@ const mysql = require("mysql");
 
 //Initiallising connection string
 var DBconf = {
-    host: "localhost",
+    host: "51.77.192.7",
     user: "commandeers",
     password: "Commandeers1234",
     database: "Antler"

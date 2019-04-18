@@ -49,7 +49,7 @@ function handleCSVForm(req,res){
     form.parse(req, (err,fields,files)=>{
         var oldpath = files.csvfile.path;
         var newpath = `${__dirname}/csv/${files.csvfile.name}`;
-        var query = parser.insert("GRAPHS",{'name':files.csvfile.name.substring(0,files.csvfile.name.length - 3)+'png','user':req.query.user,'dir':'/graphs'});
+        var query = parser.insert("GRAPHS",{'name':files.csvfile.name.substring(0,files.csvfile.name.length - 3)+'png','user':req.query.user,'dir':'/graphs/'});
         fs.rename(oldpath, newpath,(err)=>{console.log("I guess it worked?");});
         generateGraph(files.csvfile.name,res,query);
     });
@@ -111,6 +111,11 @@ function deleteGraph(res,graph) {
     })
 }
 
+function getGroupAds(groupid) {
+    con.query(`SELECT * FROM ADS a JOIN ADGROUPS g ON a.id = g.adid WHERE groupid = ${groupid}`, (err,rows,result)=>{
+        return rows;
+    });
+}
 function deleteAd (res,ad){
     /*
         Given an ad ID, it gets its name and directory.
