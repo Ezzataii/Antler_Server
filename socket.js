@@ -75,8 +75,11 @@ io.sockets.on('connection', (socket)=>{
         var idsToSend = message.devices;
         var graphs = [];
         var query = `SELECT id,Duration FROM GRAPHS WHERE id = ${adminServices.decryptKey(message.graphs[0])}`;
+        for (var i = 1 ; i < message.graphs.length ; i++){
+            query += ` OR id=${adminServices.decryptKey(message.graphs[i])}`;
+        } 
         con.query(query, (err,rows,result)=>{
-            for (var i = 1 ; i < message.graphs.length ; i++) {
+            for (var i = 1 ; i < rows.length ; i++) {
                 var graph = {};
                 graph.id = adminServices.encryptKey(rows[i].id);
                 graph.duration = rows[i].Duration;
