@@ -104,7 +104,7 @@ function deleteGraph(res,graph) {
     var id = decryptKey(graph);
     con.query(`SELECT * FROM GRAPHS WHERE id=${id}`, (err,rows,result)=>{
         var path = __dirname + rows[0].dir + rows[0].name;
-        con.query(remove("GRAPHS",id));
+        con.query(parser.remove("GRAPHS",id));
         fs.unlink(path, (err)=>{
             console.log("deleted graph file");
         })
@@ -120,7 +120,7 @@ function deleteAd (res,ad){
     con.query(`SELECT * FROM ADS WHERE id=${id}`,(err,rows,result)=>{
         if (rows.length>0){
             var path = __dirname+rows[0].dir+rows[0].name;
-            con.query(remove("ADS", id));
+            con.query(parser.remove("ADS", id));
             fs.unlink(path, function(err){
                 if (err)  throw err;
                 console.log("Successful deleted ad file");
@@ -152,5 +152,5 @@ module.exports.deleteAd = deleteAd;
 module.exports.deleteDevice = deleteDevice;
 module.exports.decryptKey = decryptKey;
 module.exports.encryptKey = encryptKey;
-module.export.deleteGraph = deleteGraph;
+module.exports.deleteGraph = deleteGraph;
 
