@@ -16,6 +16,8 @@ function executeQuery(res, query){
         for (var i = 0 ; i < rows.length ; i++){
             if (rows[i].id != null){
                 rows[i].id = (rows[i].id*1423).toString(36).toUpperCase();
+            } else if (rows[i].groupid != null) {
+                rows[i].groupid = (rows[i].groupid*1423).toString(36).toUpperCase();
             }
         }
         res.end(JSON.stringify(rows));
