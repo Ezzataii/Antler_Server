@@ -192,7 +192,9 @@ app.post("/api/deploy/groups", (req,res)=>{
         });
     });
     setTimeout(()=>{
-        masterSocket.sendAdsToIds({devices: devices, images: ads});
+        json = {devices: devices, images: ads}
+        masterSocket.sendAdsToIds(json);
+        console.log(JSON.stringify(json));
         res.end("Successful");
     }, 5000)
 });
