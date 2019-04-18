@@ -152,4 +152,5 @@ module.exports.deleteAd = deleteAd;
 module.exports.deleteDevice = deleteDevice;
 module.exports.decryptKey = decryptKey;
 module.exports.encryptKey = encryptKey;
+module.export.deleteGraph = deleteGraph;
 
