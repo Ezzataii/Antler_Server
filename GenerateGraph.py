@@ -1,4 +1,7 @@
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import os
 import matplotlib.pyplot as plt
 import sys
 
@@ -27,3 +30,4 @@ plt.title(nameWithoutExtension)
 plt.scatter(x[1:],y[1:])
 plt.plot(x[1:],y[1:])
 plt.savefig('./graphs/' + pngfilename)
+os.remove('./csv/' + csvfilename)
