@@ -37,7 +37,10 @@ io.sockets.on('connection', (socket)=>{
     })
 
     socket.on("location",(message)=>{
-        con.query(`UPDATE DEVICE SET longitude=${message.longitude},latitude=${message.latitude} WHERE id=${adminServices.decryptKey(message.id)})`);
+        if (message.longitude != null && message.latitude != null){
+            console.log(`UPDATE DEVICE SET longitude=${message.longitude},latitude=${message.latitude} WHERE id=${adminServices.decryptKey(message.id)})`);
+            con.query(`UPDATE DEVICE SET longitude=${message.longitude},latitude=${message.latitude} WHERE id=${adminServices.decryptKey(message.id)}`);
+        }
     })
 
 
@@ -54,6 +57,7 @@ io.sockets.on('connection', (socket)=>{
         for (var i = 1 ; i < message.images.length ; i++){
             query += ` OR id=${adminServices.decryptKey(message.images[i])}`;
         }
+        console.log(query);
         con.query(query,(err,rows,res)=>{
             for (var i = 0 ; i < rows.length ; i++){
                 var image = {}
