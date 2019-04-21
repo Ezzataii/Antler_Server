@@ -140,6 +140,7 @@ function deleteAd (res,ad){
         if (rows.length>0){
             var path = __dirname+rows[0].dir+rows[0].name;
             con.query(parser.remove("ADS", id));
+            con.query("DELETE FROM ADGROUPS WHERE adid = "+ id);
             fs.unlink(path, function(err){
                 if (err)  throw err;
                 console.log("Successful deleted ad file");
