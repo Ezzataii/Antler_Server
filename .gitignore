@@ -1,5 +1,7 @@
 node_modules/
-
+images/
+csv/
+graphs/
 
 # Editor directories and files
 .idea
