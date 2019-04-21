@@ -101,6 +101,18 @@ function viewImage(res,id) {
         }
     })
 }
+
+function viewGraph(res,id)  {
+    con.query("SELECT dir,name FROM GRAPHS WHERE id = " +id,(err,rows,result)=>{
+        if (rows.length>0){
+            var graph = rows[0];
+            res.sendFile(__dirname+graph.dir+graph.name);
+        }else{
+            res.end("Woops! viewImage returned no results!");
+        }
+    })
+}
+
 function deleteGraph(res,graph) {
     console.log(graph);
     var id = decryptKey(graph);

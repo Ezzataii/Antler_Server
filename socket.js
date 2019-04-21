@@ -52,6 +52,7 @@ io.sockets.on('connection', (socket)=>{
             received on.
         */
         var idsToSend = message.devices;
+        var writeMode = message.writeMode;
         var images = [];
         var query = `SELECT id,Duration FROM ADS WHERE id=${adminServices.decryptKey(message.images[0])}`;
         for (var i = 1 ; i < message.images.length ; i++){
@@ -63,16 +64,22 @@ io.sockets.on('connection', (socket)=>{
                 var image = {};
                 image.id = adminServices.encryptKey(rows[i].id);
                 image.duration = rows[i].Duration;
+                image.type = "ad";
                 images.push(image);
             }
+            var json = {
+                writeMode: writeMode,
+                images: images
+            }
             idsToSend.forEach(device => {
-                io.to(socketLookup[device]).emit('deployToClient',images);
+                io.to(socketLookup[device]).emit('deployToClient',json);
             });
         })
     })
 
     socket.on("deployGraphsToServer", (message)=>{
         var idsToSend = message.devices;
+        var writeMode = message.writeMode;
         var graphs = [];
         var query = `SELECT id,Duration FROM GRAPHS WHERE id = ${adminServices.decryptKey(message.graphs[0])}`;
         for (var i = 1 ; i < message.graphs.length ; i++){
@@ -83,10 +90,15 @@ io.sockets.on('connection', (socket)=>{
                 var graph = {};
                 graph.id = adminServices.encryptKey(rows[i].id);
                 graph.duration = rows[i].Duration;
+                graph.type = "graph";
                 graphs.push(graph);
             }
+            var json = {
+                writeMode: writeMode,
+                images: graphs
+            }
             idsToSend.forEach(device => {
-                io.to(socketLookup[device].emit('deployToClient', graphs));
+                io.to(socketLookup[device]).emit('deployToClient', graphs);
             });
         })
     })

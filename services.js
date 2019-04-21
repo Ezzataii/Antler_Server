@@ -157,8 +157,6 @@ app.post("/api/deploy/ads",(req,res)=>{
     }else{
         console.log(JSON.stringify(req.body.parameters));
         //if (req.body.authentication == the correct one)
-        var devices =req.body.parameters.devices;
-        var images = req.body.parameters.images;
         masterSocket.sendAdsToIds(req.body.parameters);
         res.end("successful");
 //        executeQuery(res,query);
@@ -166,8 +164,6 @@ app.post("/api/deploy/ads",(req,res)=>{
 });
 
 app.post("/api/deploy/graphs",(req,res)=>{
-    var devices = req.body.parameters.devices;
-    var images = req.body.parameters.graphs;
     masterSocket.sendGraphsToIds(req.body.parameters);
     res.end("Successful");
 });
@@ -262,6 +258,11 @@ app.get("/view/ad/:adid",(req,res)=>{
     var id = adminServices.decryptKey(req.params.adid);
     adminServices.viewImage(res,id);
 });
+
+app.get("view/graph/:graphid",(req,res)=>{
+    var id = adminServices.decryptKey(req.params.graphid);
+    adminServices.viewGraph(res,id);
+})
 
 app.get("/api/create/:group/:user",(req,res)=>{
 executeQuery(res,`INSERT INTO UserGroup(name,userid) VALUES('${req.params.group}',${req.params.user})`);
