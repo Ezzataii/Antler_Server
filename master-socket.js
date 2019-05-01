@@ -1,14 +1,17 @@
 var socket = require('socket.io-client')("http://localhost:3000",{query: "id=MASTER"});
 var socketLookup = require('./socket').socketLookup;
 
-function sendAdsToIds(ids) {
-    socket.emit("deployAdsToServer", ids);
+function sendAdsToIds(req) {
+    socket.emit("deployAdsToServer", req);
 }
 
-function sendGraphsToIds(ids) {
-    socket.emit("deployGraphsToServer", ids);
+function sendGraphsToIds(req) {
+    socket.emit("deployGraphsToServer", req);
 }
 
+function sendPsasToIds(json) {
+    socket.emit("deployPsasToServer",json);
+}
 
 /*
     Here, we are connecting as a master client on the socket.
@@ -20,3 +23,4 @@ function sendGraphsToIds(ids) {
 
 module.exports.sendAdsToIds = sendAdsToIds;
 module.exports.sendGraphsToIds = sendGraphsToIds;
+module.exports.sendPsasToIds = sendPsasToIds;

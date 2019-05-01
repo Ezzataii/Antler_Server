@@ -43,7 +43,19 @@ io.sockets.on('connection', (socket)=>{
         }
     })
 
-
+    socket.on('deployPsasToServer',(message) => {
+        var idsToSend = JSON.parse(message.devices);
+        console.log(idsToSend);
+        var writeMode = message.writeMode;
+        var psaID = message.psaID;
+        var duration = message.psaDuration;
+        var text = message.text;
+        images = [{id: psaID, duration: duration, type: 'psa', text: text, writeMode: writeMode}];
+        console.log(images);
+        idsToSend.forEach(device => {
+            io.to(socketLookup[device]).emit('deployToClient',images);
+        });
+    })
     socket.on('deployAdsToServer', (message)=>{
         /*
             When the master client initiates a deploy activity, it means the admin is trying to deploy on the webapp

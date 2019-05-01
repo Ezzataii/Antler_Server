@@ -168,6 +168,11 @@ app.post("/api/deploy/graphs",(req,res)=>{
     res.end("Successful");
 });
 
+app.post("/api/deploy/psa",(req,res)=>{
+    adminServices.handlePSAForm(req,res);
+    res.end("Successful");
+})
+
 app.post("/api/deploy/groups", (req,res)=>{
     var devices = req.body.parameters.devices;
     var groups = req.body.parameters.groups;
@@ -259,9 +264,14 @@ app.get("/view/ad/:adid",(req,res)=>{
     adminServices.viewImage(res,id);
 });
 
-app.get("view/graph/:graphid",(req,res)=>{
+app.get("/view/graph/:graphid",(req,res)=>{
     var id = adminServices.decryptKey(req.params.graphid);
     adminServices.viewGraph(res,id);
+})
+
+app.get("/view/psa/:psaid",(req,res)=>{
+    var id = adminServices.decryptKey(req.params.psaid);
+    adminServices.viewPSA(res,id);
 })
 
 app.get("/api/create/:group/:user",(req,res)=>{

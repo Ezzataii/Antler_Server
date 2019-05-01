@@ -3,7 +3,7 @@ const formidable = require("formidable");
 const fs = require("fs");
 const con = require("./DBcnfg").con;
 const request = require("request");
-
+const masterSocket = require('./master-socket');
 //Function to connect to database and execute query
 function executeQuery(res, query){
     /*
@@ -50,11 +50,33 @@ function handleCSVForm(req,res){
     var form = new formidable.IncomingForm();
     form.parse(req, (err,fields,files)=>{
         var oldpath = files.csvfile.path;
-        var newpath = `${__dirname}/csv/${files.csvfile.name}`;
+        var newpath = `${__dirname}/csvs/${files.csvfile.name}`;
         var query = parser.insert("GRAPHS",{'name':files.csvfile.name.substring(0,files.csvfile.name.length - 3)+'png','user':req.query.user,'dir':'/graphs/'});
         fs.rename(oldpath, newpath,(err)=>{console.log("I guess it worked?");});
         generateGraph(files.csvfile.name,res,query);
     });
+}
+
+function handlePSAForm(req,res) {
+    var form = new formidable.IncomingForm();
+    form.parse(req,(err,fields,files)=>{
+        var oldpath = files.psafile.path;
+        var newpath = `${__dirname}/psa/${files.psafile.name}`;
+        console.log(newpath);
+        fs.rename(oldpath,newpath,(err)=>{console.log("PSA worked?");});
+        var query = parser.insert("PSAS",{'name':files.psafile.name, 'dir':'/psas/'});
+        // console.log(query);
+        con.query(query, (err,result,rows)=>{
+                var json = {
+                    psaID: encryptKey(result.insertId),
+                    psaDuration: fields.duration,
+                    devices: fields.devices,
+                    text: fields.text,
+                    writeMode: fields.writeMode
+                };
+                masterSocket.sendPsasToIds(json);
+            })
+        });
 }
 
 function generateGraph(csvFile,res,query) {
@@ -113,6 +135,17 @@ function viewGraph(res,id)  {
     })
 }
 
+function viewPsa(res,id) {
+    con.query("SELECT dir,name FROM PSAS WHERE id = "+id,(err,rows,result)=>{
+        if (rows.length>0) {
+            var psa = rows[0];
+            res.sendFile(__dirname+psa.dir+psa.name);
+        } else {
+            res.end("Woops! Viewimage returned no results!");
+        }
+    })
+}
+
 function deleteGraph(res,graph) {
     console.log(graph);
     var id = decryptKey(graph);
@@ -161,13 +194,15 @@ function deleteDevice(res,device) {
 
 
 
-
-
+module.exports.getGroupAds = getGroupAds;
+module.exports.handlePSAForm = handlePSAForm;
 module.exports.handleForm = handleForm;
 module.exports.handleCSVForm = handleCSVForm;
 module.exports.executeQuery = executeQuery;
 module.exports.selectAndSend = selectAndSend;
 module.exports.viewImage = viewImage;
+module.exports.viewGraph = viewGraph;
+module.exports.viewPsa = viewPsa;
 module.exports.deleteAd = deleteAd;
 module.exports.deleteDevice = deleteDevice;
 module.exports.decryptKey = decryptKey;
