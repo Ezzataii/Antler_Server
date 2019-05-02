@@ -164,39 +164,15 @@ app.post("/api/deploy/ads",(req,res)=>{
 });
 
 app.post("/api/deploy/graphs",(req,res)=>{
+    console.log(req.body.parameters);
     masterSocket.sendGraphsToIds(req.body.parameters);
     res.end("Successful");
-});
-
-app.post("/api/deploy/psa",(req,res)=>{
-    var form = new formidable.IncomingForm();
-    console.log("alildeek is here");
-    form.parse(req, (err,fields,files)=>{
-        console.log("anything");
-        var oldpath = files.psafile.path;
-        var newpath = `${__dirname}/psas/${files.psafile.name}`;
-        console.log(newpath);
-        fs.rename(oldpath,newpath,(err)=>{console.log("PSA worked?");});
-        var query = parser.insert("PSAS",{'name':files.psafile.name, 'dir':'/psas/'});
-        // console.log(query);
-        con.query(query, (err,result,rows)=>{
-                var json = {
-                    psaID: encryptKey(result.insertId),
-                    psaDuration: fields.duration,
-                    devices: fields.devices,
-                    text: fields.text,
-                    writeMode: fields.writeMode
-                };
-                console.log(fields.devices);
-                masterSocket.sendPsasToIds(json);
-                res.end("Successful");
-            })
-        });
 });
 
 app.post("/api/deploy/groups", (req,res)=>{
     var devices = req.body.parameters.devices;
     var groups = req.body.parameters.groups;
+    var writeMode = req.body.parameters.writeMode;
     ads = []
     var i = 0;
     var done = false;
@@ -216,7 +192,7 @@ app.post("/api/deploy/groups", (req,res)=>{
         });
     });
     setTimeout(()=>{
-        json = {devices: devices, images: ads}
+        json = {devices: devices, images: ads, writeMode: writeMode};
         masterSocket.sendAdsToIds(json);
         console.log(JSON.stringify(json));
         res.end("Successful");
@@ -290,11 +266,6 @@ app.get("/view/graph/:graphid",(req,res)=>{
     adminServices.viewGraph(res,id);
 })
 
-app.get("/view/psa/:psaid",(req,res)=>{
-    var id = adminServices.decryptKey(req.params.psaid);
-    adminServices.viewPsa(res,id);
-})
-
 app.get("/api/create/:group/:user",(req,res)=>{
 executeQuery(res,`INSERT INTO UserGroup(name,userid) VALUES('${req.params.group}',${req.params.user})`);
 });
@@ -316,7 +287,8 @@ app.get("/api/get/ads",(req,res)=>{
     /*
         get all the ads of in a group given the groupID
     */
-    adminServices.executeQuery(res,`SELECT * FROM ADS a JOIN ADGROUPS g ON g.adid=a.id WHERE g.groupid='${adminServices.decryptKey(req.query.groupid)}'`);
+    var groupid = adminServices.decryptKey(req.query.groupid);
+    adminServices.executeQuery(res,`SELECT * FROM ADS a JOIN ADGROUPS g ON g.adid=a.id WHERE g.groupid=${groupid}`);
 });
 
 app.get("/api/get/groups",(req,res)=>{
