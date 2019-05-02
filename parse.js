@@ -10,10 +10,14 @@ function parseWhere(cond){
     if (Object.keys(cond).length > 0){
         for (var key in cond){
             if (key != "token"){
+                console.log("key = " + key);
                 where += key + " = " + "'" + cond[key] + "'" + " and ";
             }
         }
         where = where.slice(0,where.length-4);
+    }
+    if (where.includes("?")) {
+        where = replaceAll(where, "?", "");
     }
     return where;
 }

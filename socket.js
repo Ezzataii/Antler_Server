@@ -50,9 +50,10 @@ io.sockets.on('connection', (socket)=>{
         var psaID = message.psaID;
         var duration = message.psaDuration;
         var text = message.text;
-        images = [{id: psaID, duration: duration, type: 'psa', text: text, writeMode: writeMode}];
+        images = { writeMode: writeMode,imageArray: [{id: psaID, duration: duration, type: 'psa', text: text}]};
         console.log(images);
         idsToSend.forEach(device => {
+            console.log(socketLookup[device]);
             io.to(socketLookup[device]).emit('deployToClient',images);
         });
     })
@@ -81,8 +82,9 @@ io.sockets.on('connection', (socket)=>{
             }
             var json = {
                 writeMode: writeMode,
-                images: images
+                imageArray: images
             }
+            console.log(json);
             idsToSend.forEach(device => {
                 io.to(socketLookup[device]).emit('deployToClient',json);
             });
@@ -98,7 +100,7 @@ io.sockets.on('connection', (socket)=>{
             query += ` OR id=${adminServices.decryptKey(message.graphs[i])}`;
         } 
         con.query(query, (err,rows,result)=>{
-            for (var i = 1 ; i < rows.length ; i++) {
+            for (var i = 0 ; i < rows.length ; i++) {
                 var graph = {};
                 graph.id = adminServices.encryptKey(rows[i].id);
                 graph.duration = rows[i].Duration;
@@ -107,10 +109,10 @@ io.sockets.on('connection', (socket)=>{
             }
             var json = {
                 writeMode: writeMode,
-                images: graphs
+                imageArray: graphs
             }
             idsToSend.forEach(device => {
-                io.to(socketLookup[device]).emit('deployToClient', graphs);
+                io.to(socketLookup[device]).emit('deployToClient', json);
             });
         })
     })

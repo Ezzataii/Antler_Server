@@ -33,6 +33,7 @@ function handleForm(req,res){
         I have no idea what's happening here. We should change this. Copied from stack overflow.
     */
     var form = new formidable.IncomingForm();
+    console.log(form.parse(req));
     form.parse(req, function(err, fields, files) {
         var oldpath = files.filetoupload.path;              //uploading file to server
         var newpath = __dirname+"/images/" + files.filetoupload.name;
@@ -59,9 +60,11 @@ function handleCSVForm(req,res){
 
 function handlePSAForm(req,res) {
     var form = new formidable.IncomingForm();
-    form.parse(req,(err,fields,files)=>{
+    console.log("alildeek is here");
+    form.parse(req, (err,fields,files)=>{
+        console.log("anything");
         var oldpath = files.psafile.path;
-        var newpath = `${__dirname}/psa/${files.psafile.name}`;
+        var newpath = `${__dirname}/psas/${files.psafile.name}`;
         console.log(newpath);
         fs.rename(oldpath,newpath,(err)=>{console.log("PSA worked?");});
         var query = parser.insert("PSAS",{'name':files.psafile.name, 'dir':'/psas/'});
@@ -74,9 +77,11 @@ function handlePSAForm(req,res) {
                     text: fields.text,
                     writeMode: fields.writeMode
                 };
+                console.log(fields.devices);
                 masterSocket.sendPsasToIds(json);
             })
         });
+    console.log("After parse");
 }
 
 function generateGraph(csvFile,res,query) {

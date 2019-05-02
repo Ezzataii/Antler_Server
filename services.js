@@ -171,7 +171,7 @@ app.post("/api/deploy/graphs",(req,res)=>{
 app.post("/api/deploy/psa",(req,res)=>{
     adminServices.handlePSAForm(req,res);
     res.end("Successful");
-})
+});
 
 app.post("/api/deploy/groups", (req,res)=>{
     var devices = req.body.parameters.devices;
@@ -271,7 +271,7 @@ app.get("/view/graph/:graphid",(req,res)=>{
 
 app.get("/view/psa/:psaid",(req,res)=>{
     var id = adminServices.decryptKey(req.params.psaid);
-    adminServices.viewPSA(res,id);
+    adminServices.viewPsa(res,id);
 })
 
 app.get("/api/create/:group/:user",(req,res)=>{
@@ -295,7 +295,7 @@ app.get("/api/get/ads",(req,res)=>{
     /*
         get all the ads of in a group given the groupID
     */
-    adminServices.executeQuery(res,`SELECT * FROM ADS a JOIN ADGROUPS g ON g.adid=a.id WHERE g.groupid=${req.query.groupid}`);
+    adminServices.executeQuery(res,`SELECT * FROM ADS a JOIN ADGROUPS g ON g.adid=a.id WHERE g.groupid='${adminServices.decryptKey(req.query.groupid)}'`);
 });
 
 app.get("/api/get/groups",(req,res)=>{

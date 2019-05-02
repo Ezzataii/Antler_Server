@@ -10,6 +10,9 @@ var DBconf = {
 
 var con = mysql.createConnection(DBconf); //Connecting to the database.
 
+setInterval(() => {
+    con.query("Select 1");
+}, 5000);
 
 
 
