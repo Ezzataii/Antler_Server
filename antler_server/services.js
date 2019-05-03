@@ -314,6 +314,10 @@ app.post("/api/deploy/groups/:groupid",(req,res)=>{
     });
 });
 
+app.get("/view/default/ad",(req,res)=>{
+    res.sendFile(__dirname+"/images/default.png");
+});
+
 
 /*
 
